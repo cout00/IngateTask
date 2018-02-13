@@ -28,29 +28,69 @@ namespace IngateTask.Core
             return false;
         }
 
+        static string AddSlash(string st)
+        {
+            if (!st.EndsWith("/"))
+            {
+                return st += "/";
+            }
+            return st;
+        }
+
+        static string RemoveSlash(string st)
+        {
+            if (st.EndsWith("/"))
+            {
+                return st.Remove(st.Length - 1);
+            }
+            return st;
+        }
+
+        public static bool UriIsAnchorOrRedirect(this Uri self)
+        {
+            return self.OriginalString.Contains("#")|| self.OriginalString.Contains("?url=")|| self.OriginalString.Contains("&url=");
+        }
+
+
+        public static Uri CombinePath(this Uri selfUri, string path)
+        {
+            var uri = selfUri.OriginalString;
+            uri = RemoveSlash(uri);
+            if (path.StartsWith("/"))
+            {
+                return (RemoveSlash(selfUri.GetBaseAdress()) + AddSlash(path)).ToUri();
+            }
+            if (path.StartsWith("./"))
+            {
+                path = path.TrimStart('.');
+                return (uri + AddSlash(path)).ToUri();
+            }
+            return selfUri;
+        }
+
+        public static string GetBaseAdress(this Uri self)
+        {            
+            if (!self.AbsolutePath.In("/",""))
+            {
+                return AddSlash((self.AbsoluteUri.Replace(self.AbsolutePath, "")));
+            }
+            return AddSlash(self.OriginalString);
+        }
+
+
         public static Uri Merge(this Uri self, Uri secondPart)
         {
             try
             {
-                var tryextr= self.LocalPath;
+                var tryextr = self.LocalPath;
             }
             catch (Exception e)
             {
-                string mainStr = self.OriginalString.Replace("/", "");
-                if (mainStr.Length==0)
+                if (secondPart.OriginalString.Contains(self.OriginalString))
                 {
                     return secondPart;
                 }
-                string newStr=String.Empty;
-                if (secondPart.OriginalString.Last()=='/')
-                {
-                    newStr = secondPart.OriginalString + mainStr + '/';
-                }
-                else
-                {
-                    newStr = secondPart.OriginalString+'/'+ mainStr + '/';
-                }
-                return newStr.ToUri();
+                return secondPart.CombinePath(self.OriginalString);
             }
             return self;
         }
@@ -59,16 +99,17 @@ namespace IngateTask.Core
         {
             string patternGetDomain = @"(http(|s)):\/\/(.*?)\/";
             string patternIsSubDomain = @"^([A-Za-z0-9](?:(?:[-A-Za-z0-9]){0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:(?:[-A-Za-z0-9]){0,61}[A-Za-z0-9])?){2,})$";
-            Regex regex=new Regex(patternGetDomain);
-            string clearDomen= regex.Match(self.OriginalString).Groups[3].Value;
-            regex=new Regex(patternIsSubDomain);
+            Regex regex = new Regex(patternGetDomain);
+            string clearDomen = regex.Match(self.OriginalString).Groups[3].Value;
+            regex = new Regex(patternIsSubDomain);
             return regex.IsMatch(clearDomen);
         }
 
 
         public static Uri ToUri(this string self)
         {
-            return new Uri(self,UriKind.RelativeOrAbsolute);
+            //self = AddSlash(self);
+            return new Uri(self, UriKind.RelativeOrAbsolute);
         }
 
         public static bool UriHaveSameDomens(this Uri self, Uri comparentUri)
@@ -92,10 +133,10 @@ namespace IngateTask.Core
 
         public static IEnumerable<Type> GetAgentsType()
         {
-           return Assembly.GetExecutingAssembly()
-                .GetTypes()
-                .Where(type => typeof(IUserAgent).IsAssignableFrom(type) && type != typeof(CustomAgent) &&
-                               type != typeof(IUserAgent));
+            return Assembly.GetExecutingAssembly()
+                 .GetTypes()
+                 .Where(type => typeof(IUserAgent).IsAssignableFrom(type) && type != typeof(CustomAgent) &&
+                                type != typeof(IUserAgent));
         }
 
     }

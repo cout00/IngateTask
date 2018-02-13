@@ -11,7 +11,7 @@ namespace IngateTask.Core.Loggers
     {
         public string GetCombinedString(string inputString)
         {
-            return inputString;
+            return DateTime.Now.ToString("dd MMMM yyyy | HH:mm:ss")+": "+inputString;
         }
     }
 }

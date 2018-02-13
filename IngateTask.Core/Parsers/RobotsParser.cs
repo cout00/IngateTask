@@ -37,12 +37,12 @@ namespace IngateTask.Core.Parsers
         {
             try
             {
-                var test = _request.GetFileFromDomain(_inputFields.Domain);
                 if (_inputFields.UserAgent is int)
                 {
                     intOutValue = _inputFields.UserAgent;
                     return;
                 }
+                var test = _request.GetFileFromDomain(_inputFields.Domain);                
                 bool blockFinded = false;
                 bool blockGenericFinded = false;
                 Func<string, string, string> valueExtracter = (inpStr, patter) => {
@@ -87,14 +87,18 @@ namespace IngateTask.Core.Parsers
                                 break;
                             }
                         }
-
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                _logMessanger.PostStatusMessage(LogMessages.Exceptions, $"Domain {_inputFields.Domain} throw {e.Message}");
             }
             finally
             {
                 _logMessanger.PostStatusMessage(LogMessages.Warning, $"Domain {_inputFields.Domain} have {intOutValue} delay");
             }
+            
         }
 
         public KeyValuePair<Uri, IUserAgent> GetResult()

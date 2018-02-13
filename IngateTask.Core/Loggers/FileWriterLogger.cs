@@ -43,24 +43,24 @@ namespace IngateTask.Core.Loggers
                 switch (mgsStatus)
                 {
                     case LogMessages.Error:
+                    case LogMessages.Exceptions:
                         {
                             _streamWriter.WriteLine($"{mgsStatus.ToString()}:{_stringCombiner.GetCombinedString(msg)}");
                             _streamWriter.Close();
-                            Task.Delay(50);
                             _streamWriter = File.AppendText(_path);
                             break;
                         }
-                    case LogMessages.Exceptions:
                     case LogMessages.Event:
                     case LogMessages.Warning:
                         {
                             _streamWriter.WriteLine($"{mgsStatus.ToString()}:{_stringCombiner.GetCombinedString(msg)}");
+                            _streamWriter.Close();
+                            _streamWriter = File.AppendText(_path);
                             break;
                         }
                     case LogMessages.Update:
                         {
                             _streamWriter.Close();
-                            Task.Delay(50);
                             _streamWriter = File.AppendText(_path);
                             break;
                         }

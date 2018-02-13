@@ -40,7 +40,7 @@ namespace IngateTask.Tests
             KeyValuePair<string, IUserAgent> test=new KeyValuePair<string, IUserAgent>("https://msdn.microsoft.com/en-us/library/windows/desktop/ms633545(v=vs.85).aspx", yandexBot);
 
             Uri test1 = new Uri("/sandbox/",UriKind.Relative);
-            Uri test2 = test1.Merge("https://habrahabr.ru".ToUri());
+            Uri test2 = "https://habrahabr.ru/company/tm/".ToUri();
 
 
             TextReader textReader = File.OpenText(Path.Combine(@"D:\", "1.txt"));
@@ -55,6 +55,26 @@ namespace IngateTask.Tests
             //crawler.CrawAsync();
         }
 
+        [Test]
+        public void UriTest()
+        {
+            Uri uri1 = @"https://habrahabr.ru/company/tm/".ToUri();
+            Uri uri2 = @"https://habrahabr.ru/".ToUri();
+            Uri uri3 = @"https://habrahabr.ru".ToUri();
+            string relPart1 = "/users/";
+            string relPart2 = "./users/";
+            string relPart3 = "../users/";
+            string relPart4 = "./users";
+            string relPart5 = "/users";
+            Assert.That(uri1.GetBaseAdress(),Is.EqualTo(uri2.OriginalString));
+            Assert.That(uri2.GetBaseAdress(), Is.EqualTo(uri2.OriginalString));
+            Assert.That(uri3.GetBaseAdress(), Is.EqualTo(uri2.OriginalString));
+
+            Assert.That(uri1.CombinePath(relPart1).OriginalString, Is.EqualTo(@"https://habrahabr.ru/users/"));
+            Assert.That(uri2.CombinePath(relPart2).OriginalString, Is.EqualTo(@"https://habrahabr.ru/users/"));
+            Assert.That(uri3.CombinePath(relPart2).OriginalString, Is.EqualTo(@"https://habrahabr.ru/users/"));
+            Assert.That(uri1.CombinePath(relPart2).OriginalString, Is.EqualTo(@"https://habrahabr.ru/company/tm/users/"));
+        }
 
         //static void test1()
         //{

@@ -77,7 +77,7 @@ namespace IngateTask
             RegularExpressionHttpParser parser=new RegularExpressionHttpParser();
             foreach (var robotsParser in concurrentBag)
             {
-                Crawler crawler=new Crawler(robotsParser.GetResult(),logMessanger,parser);
+                Crawler crawler=new Crawler(robotsParser.GetResult(),logMessanger,parser,"");
                 parallelQueue.Queue(() =>crawler.CrawAsync());
             }
             parallelQueue.Process().Wait();

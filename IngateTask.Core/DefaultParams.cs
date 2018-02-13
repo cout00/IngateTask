@@ -8,7 +8,7 @@ namespace IngateTask.Core
 {
     public static class DefaultParams
     {
-        public static int DefaulDelay = 500;
+        public static int DefaulDelay = 100;
         public static List<string> MEMETextList=new List<string>()
         {
             "text/html",
@@ -44,6 +44,7 @@ namespace IngateTask.Core
             "audio/aac",
             "audio/mpeg",
             "audio/ogg",
+            "image/png",
         };
     }
 }
