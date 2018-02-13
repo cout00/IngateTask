@@ -36,15 +36,13 @@ namespace IngateTask.Core.Parsers
         {
             _path = path;
             _logProvider = logProvider;
-            allowedUserAgents = Assembly.GetExecutingAssembly().
-                GetTypes().
-                Where(type => typeof(IUserAgent).IsAssignableFrom(type) && type != typeof(CustomAgent)&&type!=typeof(IUserAgent)).
+            allowedUserAgents = Extensions.GetAgentsType().
                 Select(type => type.Name.ToUpper()).
                 ToList();
         }
 
         public List<InputFields> GetParsedArray()
-        {
+        {           
             var stringArray = File.ReadAllLines(_path);
             for (int i = 0; i < stringArray.Length; i++)
             {
@@ -55,9 +53,9 @@ namespace IngateTask.Core.Parsers
                     FileIsValid = false;
                     continue;
                 }
-                if (subString[0].Last()=='/')
+                if (subString[0].Last()!='/')
                 {
-                    subString[0] = subString[0].Substring(0, subString[0].Length - 1);
+                    subString[0] = subString[0] += '/';
                 }
                 var tryConvertDelay = 0;
                 if (int.TryParse(subString[1], out tryConvertDelay))

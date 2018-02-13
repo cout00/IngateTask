@@ -51,6 +51,7 @@ namespace IngateTask.Core.Loggers
                             break;
                         }
                     case LogMessages.Exceptions:
+                    case LogMessages.Event:
                     case LogMessages.Warning:
                         {
                             _streamWriter.WriteLine($"{mgsStatus.ToString()}:{_stringCombiner.GetCombinedString(msg)}");

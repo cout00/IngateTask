@@ -11,20 +11,20 @@ namespace IngateTask.Core.Parsers
 {
     public class RobotsFileDownloader :IRequest
     {
-        public StringBuilder GetFileFromDomain(string uri)
+        public List<string> GetFileFromDomain(string uri)
         {
             string link = $"{uri}/robots.txt";
             WebClient webClient = new WebClient();
             webClient.Encoding = Encoding.UTF8;
-            StringBuilder stringBuilder = new StringBuilder();
+            List<string> list=new List<string>();
             using (StreamReader stream = new StreamReader(webClient.OpenRead(new Uri(link))))
             {
-                foreach (var str in stream.ReadToEnd().Split('\n'))
+                foreach (var str in stream.ReadToEnd().Split('\r', '\n'))
                 {
-                    stringBuilder.AppendLine(str);
+                    list.Add(str.ToLower());
                 }
             }
-            return stringBuilder;
+            return list;
         }
     }
 }

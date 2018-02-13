@@ -9,6 +9,7 @@ namespace IngateTask.Core.UserAgents
 {
     public class GoogleBot:IUserAgent
     {
+        public int GetCrawlDelay { get; set; }
         public string GetUserAgentFullName() => "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
         public string GetUserAgentName() => "Googlebot";
     }

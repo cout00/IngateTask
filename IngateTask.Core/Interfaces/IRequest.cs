@@ -8,6 +8,6 @@ namespace IngateTask.Core.Interfaces
 {
     public interface IRequest
     {
-        StringBuilder GetFileFromDomain(string uri);
+        List<string> GetFileFromDomain(string uri);
     }
 }

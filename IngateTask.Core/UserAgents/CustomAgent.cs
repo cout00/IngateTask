@@ -9,6 +9,7 @@ namespace IngateTask.Core.UserAgents
 {
     public class CustomAgent :IUserAgent
     {
+        public int GetCrawlDelay { get; set; }
         public string GetUserAgentFullName() => "CustomBot";
         public string GetUserAgentName() => "CustomBot";
 

@@ -32,6 +32,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -40,6 +42,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Crawler\Crawler.cs" />
+    <Compile Include="DefaultParams.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Interfaces\IHttpParser.cs" />
     <Compile Include="Interfaces\ILogProvider.cs" />
     <Compile Include="Interfaces\ILogStringCombiner.cs" />
     <Compile Include="Interfaces\IRequest.cs" />
@@ -48,17 +54,19 @@
     <Compile Include="Loggers\FileWriterLogger.cs" />
     <Compile Include="Loggers\LogMessanger.cs" />
     <Compile Include="Loggers\SimpleStringCombiner.cs" />
+    <Compile Include="ParallelQueue\ParallelQueue.cs" />
+    <Compile Include="Parsers\GrammaHttpParser.cs" />
     <Compile Include="Parsers\InputFileParser.cs" />
+    <Compile Include="Parsers\RegularExpressionHttpParser.cs" />
     <Compile Include="Parsers\RobotsFileDownloader.cs" />
+    <Compile Include="Parsers\RobotsFileStub.cs" />
     <Compile Include="Parsers\RobotsParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserAgents\CustomAgent.cs" />
     <Compile Include="UserAgents\GoogleBot.cs" />
     <Compile Include="UserAgents\YandexBot.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Baseclasses\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

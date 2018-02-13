@@ -10,5 +10,6 @@ namespace IngateTask.Core.Interfaces
     {
         string GetUserAgentName();
         string GetUserAgentFullName();
+        int GetCrawlDelay { get; set; }
     }
 }
