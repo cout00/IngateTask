@@ -85,12 +85,6 @@
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\IngateTask.Service.WCF\IngateTask.Service.WCF.csproj">
-      <Project>{F5D5120C-E6FC-4C82-AF59-9CA2A022B7EC}</Project>
-      <Name>IngateTask.Service.WCF</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
