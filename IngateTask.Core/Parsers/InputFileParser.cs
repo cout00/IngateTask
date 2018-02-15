@@ -38,6 +38,7 @@ namespace IngateTask.Core.Parsers
                 (type => type != typeof(IUserAgent) && type != typeof(CustomAgent))
                 .Select(type => type.Name.ToUpper())
                 .ToList();
+
         }
 
         public bool FileIsValid { get; set; } = true;
