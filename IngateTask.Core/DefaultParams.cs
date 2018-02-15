@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace IngateTask.Core
 {
     public static class DefaultParams
     {
         public static int DefaulDelay = 100;
-        public static List<string> MEMETextList=new List<string>()
+
+        public static List<string> MEMETextList = new List<string>
         {
             "text/html",
             "text/plain",
@@ -17,10 +14,11 @@ namespace IngateTask.Core
             "text/xml",
             "message/http"
         };
+
         /// <summary>
-        /// все типы которые самые распространенные их можно отсеч заранее
+        ///     все типы которые самые распространенные их можно отсеч заранее
         /// </summary>
-        public static List<string> MemeNonTextList=new List<string>()
+        public static List<string> MemeNonTextList = new List<string>
         {
             "image/gif",
             "image/jpeg",
@@ -44,7 +42,7 @@ namespace IngateTask.Core
             "audio/aac",
             "audio/mpeg",
             "audio/ogg",
-            "image/png",
+            "image/png"
         };
     }
 }

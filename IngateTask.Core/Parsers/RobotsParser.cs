@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using IngateTask.Core.Interfaces;
 using IngateTask.Core.Loggers;
@@ -17,8 +13,8 @@ namespace IngateTask.Core.Parsers
         private const string CRAWLER_DELAY_STR = "crawl-delay";
 
         private readonly InputFields _inputFields;
-        private LogMessanger _logMessanger;
-        private IRequest _request;
+        private readonly LogMessanger _logMessanger;
+        private readonly IRequest _request;
         private double intOutValue = DefaultParams.DefaulDelay;
 
         public RobotsParser(InputFields inputFields, LogMessanger logMessanger, IRequest request)
@@ -30,7 +26,6 @@ namespace IngateTask.Core.Parsers
 
         public RobotsParser()
         {
-
         }
 
         private void Parse()
@@ -42,27 +37,24 @@ namespace IngateTask.Core.Parsers
                     intOutValue = _inputFields.UserAgent;
                     return;
                 }
-                var test = _request.GetFileFromDomain(_inputFields.Domain);                
-                bool blockFinded = false;
-                bool blockGenericFinded = false;
-                Func<string, string, string> valueExtracter = (inpStr, patter) => {
+                var test = _request.GetFileFromDomain(_inputFields.Domain);
+                var blockFinded = false;
+                var blockGenericFinded = false;
+                Func<string, string, string> valueExtracter = (inpStr, patter) =>
+                {
                     if (inpStr.Contains(patter))
                     {
-                        string row = inpStr.Replace(patter, "");
-                        string newRow = "";
-                        for (int j = 0; j < row.Length; j++)
-                        {
+                        var row = inpStr.Replace(patter, "");
+                        var newRow = "";
+                        for (var j = 0; j < row.Length; j++)
                             if (!row[j].In(':', ' '))
-                            {
                                 newRow += row[j];
-                            }
-                        }
                         return newRow;
                     }
                     return "";
                 };
 
-                for (int i = 0; i < test.Count; i++)
+                for (var i = 0; i < test.Count; i++)
                 {
                     var ruleSubStr = valueExtracter(test[i], USER_AGENT_STR);
                     if (ruleSubStr.Length > 0)
@@ -79,45 +71,40 @@ namespace IngateTask.Core.Parsers
                         {
                             double value = 0;
                             if (double.TryParse(ruleValue, out value))
-                            {
                                 intOutValue = value * 1000;
-                            }
                             if (blockFinded)
-                            {
                                 break;
-                            }
                         }
                     }
                 }
             }
             catch (Exception e)
             {
-                _logMessanger.PostStatusMessage(LogMessages.Exceptions, $"Domain {_inputFields.Domain} throw {e.Message}");
+                _logMessanger.PostStatusMessage(LogMessages.Exceptions,
+                    $"Domain {_inputFields.Domain} throw {e.Message}");
             }
             finally
             {
-                _logMessanger.PostStatusMessage(LogMessages.Warning, $"Domain {_inputFields.Domain} have {intOutValue} delay");
+                _logMessanger.PostStatusMessage(LogMessages.Warning,
+                    $"Domain {_inputFields.Domain} have {intOutValue} delay");
             }
-            
         }
 
         public KeyValuePair<Uri, IUserAgent> GetResult()
         {
             if (_inputFields.UserAgent is int)
             {
-                CustomAgent agent = new CustomAgent();
-                agent.GetCrawlDelay = (int)intOutValue;
+                var agent = new CustomAgent();
+                agent.GetCrawlDelay = (int) intOutValue;
                 return new KeyValuePair<Uri, IUserAgent>(_inputFields.Domain.ToUri(), agent);
             }
-            foreach (Type type in Extensions.GetAgentsType())
-            {
+            foreach (var type in Extensions.GetAgentsType())
                 if (string.Compare(type.Name, _inputFields.UserAgent, true) == 0)
                 {
-                    var userAgent = (IUserAgent)Activator.CreateInstance(type);
-                    userAgent.GetCrawlDelay = (int)intOutValue;
+                    var userAgent = (IUserAgent) Activator.CreateInstance(type);
+                    userAgent.GetCrawlDelay = (int) intOutValue;
                     return new KeyValuePair<Uri, IUserAgent>(_inputFields.Domain.ToUri(), userAgent);
                 }
-            }
             return new KeyValuePair<Uri, IUserAgent>();
         }
 
@@ -128,14 +115,8 @@ namespace IngateTask.Core.Parsers
 
         public async Task ParseFileAsync()
         {
-            await Task.Factory.StartNew(() => {
-                Parse();
-            });
+            await Task.Factory.StartNew(() => { Parse(); });
             //await Task.Delay(4000);
         }
-
-
-
-
     }
 }

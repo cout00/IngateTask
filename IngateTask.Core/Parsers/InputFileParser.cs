@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using IngateTask.Core.Interfaces;
 using IngateTask.Core.Loggers;
 using IngateTask.Core.UserAgents;
@@ -12,13 +9,15 @@ using IngateTask.Core.UserAgents;
 namespace IngateTask.Core.Parsers
 {
     /// <summary>
-    /// тут можно спорить вечно но по рихтеру они не боксятся, сам не проверял
+    ///     тут можно спорить вечно но по рихтеру они не боксятся, сам не проверял
     /// </summary>
+    [Serializable]
     public struct InputFields
     {
-        public String Domain { get; set; }
+        public string Domain { get; set; }
+
         /// <summary>
-        /// памяти и так много
+        ///     памяти и так много
         /// </summary>
         public dynamic UserAgent { get; set; }
     }
@@ -26,63 +25,64 @@ namespace IngateTask.Core.Parsers
 
     public class InputLocalFileParser
     {
-        private readonly string _path;
         private readonly ILogProvider _logProvider;
-        List<InputFields> _fieldses = new List<InputFields>();
-        public bool FileIsValid { get; set; } = true;
-        private List<string> allowedUserAgents;
+        private readonly string _path;
+        private readonly List<InputFields> _fieldses = new List<InputFields>();
+        private readonly List<string> allowedUserAgents;
 
         public InputLocalFileParser(string path, ILogProvider logProvider)
         {
             _path = path;
             _logProvider = logProvider;
-            allowedUserAgents=Extensions.GetAssignedType
-                (typeof(IUserAgent),type => type!=typeof(IUserAgent)&&type!=typeof(CustomAgent))
-                .Select(type => type.Name.ToUpper()).
-                ToList();
+            allowedUserAgents = typeof(IUserAgent).GetAssignedType
+                (type => type != typeof(IUserAgent) && type != typeof(CustomAgent))
+                .Select(type => type.Name.ToUpper())
+                .ToList();
         }
+
+        public bool FileIsValid { get; set; } = true;
 
         public List<InputFields> GetParsedArray()
         {
-            string[] stringArray=new string[1]{" "};
+            var stringArray = new string[1] {" "};
             try
             {
                 stringArray = File.ReadAllLines(_path);
             }
             catch (Exception e)
             {
-                _logProvider.SendStatusMessage(LogMessages.Error, $"Sorry, path {_path} is wrong try againe {e.Message}");
+                _logProvider.SendStatusMessage(LogMessages.Error,
+                    $"Sorry, path {_path} is wrong try againe {e.Message}");
                 return null;
             }
-            for (int i = 0; i < stringArray.Length; i++)
+            for (var i = 0; i < stringArray.Length; i++)
             {
                 var subString = stringArray[i].Trim().Split(' ');
                 if (subString.Length > 2)
                 {
-                    _logProvider.SendStatusMessage(LogMessages.Error, $"Wrong Parsing at {i + 1} line. Line will be skipped");
+                    _logProvider.SendStatusMessage(LogMessages.Error,
+                        $"Wrong Parsing at {i + 1} line. Line will be skipped");
                     FileIsValid = false;
                     continue;
                 }
                 if (subString[0].Last() != '/')
-                {
                     subString[0] = subString[0] += '/';
-                }
                 var tryConvertDelay = 0;
                 if (int.TryParse(subString[1], out tryConvertDelay))
                 {
-                    _fieldses.Add(new InputFields() { Domain = subString[0], UserAgent = tryConvertDelay });
+                    _fieldses.Add(new InputFields {Domain = subString[0], UserAgent = tryConvertDelay});
                 }
                 else
                 {
                     if (allowedUserAgents.Contains(subString[1].ToUpper()))
                     {
-                        _fieldses.Add(new InputFields() { Domain = subString[0], UserAgent = subString[1] });
+                        _fieldses.Add(new InputFields {Domain = subString[0], UserAgent = subString[1]});
                     }
                     else
                     {
-                        _logProvider.SendStatusMessage(LogMessages.Error, $"Wrong Parsing at {i + 1} line. Line will be skipped. {Environment.NewLine}\"{subString[1]}\" not valid User Agent");
+                        _logProvider.SendStatusMessage(LogMessages.Error,
+                            $"Wrong Parsing at {i + 1} line. Line will be skipped. {Environment.NewLine}\"{subString[1]}\" not valid User Agent");
                         FileIsValid = false;
-                        continue;
                     }
                 }
             }

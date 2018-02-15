@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using IngateTask.Core.Loggers;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using IngateTask.Core.Interfaces;
+
+[assembly: InternalsVisibleTo("IngateTask.Tests")]
 
 namespace IngateTask.Core.CommandInterpreter
 {
-    public class Interpreter:List<Command>
+    public class Interpreter : List<Command>
     {
         private readonly ILogProvider _logProvider;
 
@@ -19,64 +19,55 @@ namespace IngateTask.Core.CommandInterpreter
 
         public bool Interpret(string inpCommand)
         {
-            Command command = Parse(inpCommand);
-            if (command==null)
-            {
+            var command = Parse(inpCommand);
+            if (command == null)
                 return false;
-            }
+            if (!command.PropertySetter(command.Parameter))
+                return false;
             if (command.InvokeRequarement())
-            {
                 if (command.CommandAction())
                 {
+                    _logProvider.SendNonStatusMessage("OK");
                     return true;
                 }
                 else
-                {                    
+                {
                     return command.ResumeRequarement();
-                }                                
-            }
-            else
-            {
+                }
+            if (command.OnFailFunc != null)
                 _logProvider.SendNonStatusMessage(command.OnFailFunc());
-                return false;
-            }
+            return false;
         }
 
-        Command FindCommand(string name)
+        internal Command FindCommand(string name)
         {
             foreach (var command in this)
-            {
-                if (string.Compare(command.CommandName.ToLower(), name)==0)
-                {
+                if (string.Compare(command.CommandName.ToLower(), name) == 0)
                     return command;
-                }
-            }
             return null;
         }
 
-        Command Parse(string inpstr)
+        internal Command Parse(string inpstr)
         {
-            inpstr= inpstr.Trim(' ').ToLower();
+            inpstr = inpstr.Trim(' ').ToLower();
             if (!inpstr.StartsWith("-"))
             {
                 _logProvider.SendNonStatusMessage($"Parse error. command {inpstr} unknow");
                 return null;
             }
             var splitRes = inpstr.Split(' ');
-            if (splitRes.Length==0)
-            {
+            if (splitRes.Length == 0)
                 return null;
-            }
-            Command command=null;
+            Command command = null;
             command = FindCommand(splitRes.First());
-            if (splitRes.Length==1)
-            {                
-                if (command==null)
+            if (splitRes.Length == 1)
+            {
+                if (command == null)
                 {
                     _logProvider.SendNonStatusMessage($"Parse error. command {inpstr} unknow");
                     return null;
                 }
-                else
+                if (command.GetType().GetCustomAttribute(typeof(ParametrelessAttribute)) == null)
                 {
                     _logProvider.SendNonStatusMessage($"Parse error. command {inpstr} have no params");
                     return null;
@@ -84,15 +75,12 @@ namespace IngateTask.Core.CommandInterpreter
             }
             else
             {
-                for (int i = 1; i < splitRes.Length; i++)
-                {
-                    command.Parameter += splitRes[i]+' ';
-                }
+                command.Parameter = string.Empty;
+                for (var i = 1; i < splitRes.Length; i++)
+                    command.Parameter += splitRes[i] + ' ';
                 command.Parameter.Trim(' ');
             }
             return command;
         }
-
-
     }
 }

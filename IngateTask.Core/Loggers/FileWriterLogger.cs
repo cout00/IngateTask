@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 using IngateTask.Core.Interfaces;
-using System.Collections.Concurrent;
 
 namespace IngateTask.Core.Loggers
 {
-    public class FileWriterLogger :ILogProvider
+    public class FileWriterLogger : ILogProvider
     {
-        private string _path;
         private readonly ILogStringCombiner _stringCombiner;
+        private readonly string _path;
         private StreamWriter _streamWriter;
-        private object syncObject = new object();
+        private readonly object syncObject = new object();
 
         public FileWriterLogger(string path, ILogStringCombiner stringCombiner)
         {
@@ -31,11 +25,6 @@ namespace IngateTask.Core.Loggers
             }
         }
 
-        public void CloseLogger()
-        {
-            _streamWriter.Close();
-        }
-
         public void SendStatusMessage(LogMessages mgsStatus, string msg)
         {
             lock (syncObject)
@@ -44,28 +33,33 @@ namespace IngateTask.Core.Loggers
                 {
                     case LogMessages.Error:
                     case LogMessages.Exceptions:
-                        {
-                            _streamWriter.WriteLine($"{mgsStatus.ToString()}:{_stringCombiner.GetCombinedString(msg)}");
-                            _streamWriter.Close();
-                            _streamWriter = File.AppendText(_path);
-                            break;
-                        }
+                    {
+                        _streamWriter.WriteLine($"{mgsStatus}:{_stringCombiner.GetCombinedString(msg)}");
+                        _streamWriter.Close();
+                        _streamWriter = File.AppendText(_path);
+                        break;
+                    }
                     case LogMessages.Event:
                     case LogMessages.Warning:
-                        {
-                            _streamWriter.WriteLine($"{mgsStatus.ToString()}:{_stringCombiner.GetCombinedString(msg)}");
-                            _streamWriter.Close();
-                            _streamWriter = File.AppendText(_path);
-                            break;
-                        }
+                    {
+                        _streamWriter.WriteLine($"{mgsStatus}:{_stringCombiner.GetCombinedString(msg)}");
+                        _streamWriter.Close();
+                        _streamWriter = File.AppendText(_path);
+                        break;
+                    }
                     case LogMessages.Update:
-                        {
-                            _streamWriter.Close();
-                            _streamWriter = File.AppendText(_path);
-                            break;
-                        }
+                    {
+                        _streamWriter.Close();
+                        _streamWriter = File.AppendText(_path);
+                        break;
+                    }
                 }
             }
+        }
+
+        public void CloseLogger()
+        {
+            _streamWriter.Close();
         }
     }
 }

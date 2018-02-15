@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using IngateTask.Core.Interfaces;
 
 namespace IngateTask.Core.Loggers
 {
-    public class ConsoleWriterLogger :ILogProvider
+    public class ConsoleWriterLogger : ILogProvider
     {
         private readonly ILogStringCombiner _stringCombiner;
 
@@ -23,7 +19,7 @@ namespace IngateTask.Core.Loggers
 
         public void SendStatusMessage(LogMessages mgsStatus, string msg)
         {
-            Console.WriteLine($"{mgsStatus.ToString()}: {_stringCombiner.GetCombinedString(msg)}");
+            Console.WriteLine($"{mgsStatus}: {_stringCombiner.GetCombinedString(msg)}");
         }
     }
 }

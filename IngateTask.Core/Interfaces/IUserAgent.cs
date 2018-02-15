@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace IngateTask.Core.Interfaces
+﻿namespace IngateTask.Core.Interfaces
 {
     public interface IUserAgent
     {
+        int GetCrawlDelay { get; set; }
         string GetUserAgentName();
         string GetUserAgentFullName();
-        int GetCrawlDelay { get; set; }
     }
 }
