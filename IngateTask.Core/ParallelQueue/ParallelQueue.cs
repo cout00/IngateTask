@@ -10,8 +10,9 @@ namespace IngateTask.Core.ParallelQueue
 {
     public class ParallelQueue
     {
-        private readonly ConcurrentQueue<Func<Task>> _processingQueue = new ConcurrentQueue<Func<Task>>();
+        private readonly ConcurrentQueue<KeyValuePair<string, Func<Task>>> _processingQueue = new ConcurrentQueue<KeyValuePair<string, Func<Task>>>();
         private readonly ConcurrentDictionary<int, Task> _runningTasks = new ConcurrentDictionary<int, Task>();
+        private readonly ConcurrentDictionary<int,KeyValuePair<string, CancellationTokenSource>> _cancellationTokens=new ConcurrentDictionary<int, KeyValuePair<string, CancellationTokenSource>>();
         private readonly int _maxRunningTasks;
         private TaskCompletionSource<bool> _tscQueue = new TaskCompletionSource<bool>();
 
@@ -20,7 +21,7 @@ namespace IngateTask.Core.ParallelQueue
             _maxRunningTasks = maxRunningTasks;
         }
 
-        public void Queue(Func<Task> futureTask)
+        public void Queue(KeyValuePair<string, Func<Task>> futureTask)
         {
            _processingQueue.Enqueue(futureTask);
         }
@@ -35,6 +36,29 @@ namespace IngateTask.Core.ParallelQueue
             return _runningTasks.Count;
         }
 
+        public CancellationToken GetTokenByName(string name)
+        {
+            foreach (var token in _cancellationTokens)
+            {
+                if ( token.Value.Key==name)
+                {
+                    return token.Value.Value.Token;
+                }
+            }
+            return CancellationToken.None;
+        }
+
+        public void CanselTask(string name)
+        {
+            foreach (var token in _cancellationTokens)
+            {
+                if (token.Value.Key == name)
+                {
+                    token.Value.Value.Cancel();
+                }
+            }
+        }
+
         public async Task Process()
         {
             var t = _tscQueue.Task;
@@ -47,13 +71,16 @@ namespace IngateTask.Core.ParallelQueue
             var startMaxCount = _maxRunningTasks - _runningTasks.Count;
             for (int i = 0; i < startMaxCount; i++)
             {
-                Func<Task> futureTask;
+                KeyValuePair<string, Func<Task>> futureTask;
                 if (!_processingQueue.TryDequeue(out futureTask))
                 {
                     break;
                 }
-                var t = Task.Run(futureTask);
+                CancellationTokenSource cancellationToken=new CancellationTokenSource();
+                var t = Task.Run(futureTask.Value, cancellationToken.Token);                
                 _runningTasks.TryAdd(t.GetHashCode(), t);
+                _cancellationTokens.TryAdd(t.GetHashCode(),
+                    new KeyValuePair<string, CancellationTokenSource>(futureTask.Key, cancellationToken));
                 t.ContinueWith((t2) =>
                 {
                     Task _temp;

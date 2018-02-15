@@ -50,8 +50,12 @@ namespace IngateTask.Core.Crawler
 
         }
 
-        private void DirectRecursion(Uri nextPage)
-        {            
+        private void DirectRecursion(Uri nextPage, CancellationToken token)
+        {
+            if (token.IsCancellationRequested)
+            {
+                return;
+            }            
             try
             {
                 visitedList.Add(nextPage.OriginalString);
@@ -81,7 +85,7 @@ namespace IngateTask.Core.Crawler
                             foreach (var page in ParsePage(data, nextPage))
                             {
                                 Task.Delay(_inpParams.Value.GetCrawlDelay).Wait();
-                                DirectRecursion(page);
+                                DirectRecursion(page, token);
                             }
                         }
                     }
@@ -95,13 +99,13 @@ namespace IngateTask.Core.Crawler
         }
 
 
-        public async Task CrawAsync()
+        public async Task CrawAsync(CancellationToken token)
         {
             await Task.Run(() =>
             {
                 //Directory.CreateDirectory("");
 
-                DirectRecursion(_inpParams.Key);
+                DirectRecursion(_inpParams.Key, token);
                 _logMessanger.PostStatusMessage(LogMessages.Event,
                     $"Domain {_inpParams.Key.OriginalString} Parsed!");
             });

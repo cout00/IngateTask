@@ -36,24 +36,34 @@ namespace IngateTask.Core.Parsers
         {
             _path = path;
             _logProvider = logProvider;
-            allowedUserAgents = Extensions.GetAgentsType().
-                Select(type => type.Name.ToUpper()).
+            allowedUserAgents=Extensions.GetAssignedType
+                (typeof(IUserAgent),type => type!=typeof(IUserAgent)&&type!=typeof(CustomAgent))
+                .Select(type => type.Name.ToUpper()).
                 ToList();
         }
 
         public List<InputFields> GetParsedArray()
-        {           
-            var stringArray = File.ReadAllLines(_path);
+        {
+            string[] stringArray=new string[1]{" "};
+            try
+            {
+                stringArray = File.ReadAllLines(_path);
+            }
+            catch (Exception e)
+            {
+                _logProvider.SendStatusMessage(LogMessages.Error, $"Sorry, path {_path} is wrong try againe {e.Message}");
+                return null;
+            }
             for (int i = 0; i < stringArray.Length; i++)
             {
                 var subString = stringArray[i].Trim().Split(' ');
                 if (subString.Length > 2)
                 {
-                    _logProvider.SendStatusMessage(LogMessages.Error, $"Wrong Parsing at {i+1} line. Line will be skipped");
+                    _logProvider.SendStatusMessage(LogMessages.Error, $"Wrong Parsing at {i + 1} line. Line will be skipped");
                     FileIsValid = false;
                     continue;
                 }
-                if (subString[0].Last()!='/')
+                if (subString[0].Last() != '/')
                 {
                     subString[0] = subString[0] += '/';
                 }
@@ -70,7 +80,7 @@ namespace IngateTask.Core.Parsers
                     }
                     else
                     {
-                        _logProvider.SendStatusMessage(LogMessages.Error, $"Wrong Parsing at {i+1} line. Line will be skipped. {Environment.NewLine}\"{subString[1]}\" not valid User Agent");
+                        _logProvider.SendStatusMessage(LogMessages.Error, $"Wrong Parsing at {i + 1} line. Line will be skipped. {Environment.NewLine}\"{subString[1]}\" not valid User Agent");
                         FileIsValid = false;
                         continue;
                     }

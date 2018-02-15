@@ -9,6 +9,7 @@ using System.Net.Mime;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using IngateTask.Core.Clients;
 using IngateTask.Core.Crawler;
 using IngateTask.Core.Interfaces;
 using IngateTask.Core.Parsers;
@@ -18,11 +19,8 @@ namespace IngateTask
 {
     class Program
     {
-        Dictionary<string, IUserAgent> inputDictionary = new Dictionary<string, IUserAgent>();
+        private static bool cancelConsole = false;
 
-        private static string outDirectory = "";
-        private static int threadCount = 1;
-        private static LogMessanger _logMessanger=new LogMessanger();
 
         static bool ParseArgs(List<string> args)
         {
@@ -53,36 +51,51 @@ namespace IngateTask
             return false;
         }
 
+        static async Task Process()
+        {
+
+
+            //RobotsFileDownloader robotsFileDownloader = new RobotsFileDownloader();
+            //ParallelQueue parallelQueue = new ParallelQueue(2);
+            //ConcurrentBag<RobotsParser> concurrentBag = new ConcurrentBag<RobotsParser>();
+            //foreach (var domains in array)
+            //{
+            //    RobotsParser robotsParser = new RobotsParser(domains, logMessanger, robotsFileDownloader);
+            //    concurrentBag.Add(robotsParser);
+            //    parallelQueue.Queue(new KeyValuePair<string, Func<Task>>("", () => robotsParser.ParseFileAsync()));
+            //}
+            //parallelQueue.Process().Wait();
+            //parallelQueue = new ParallelQueue(2);
+            //RegularExpressionHttpParser parser = new RegularExpressionHttpParser();
+            //foreach (var robotsParser in concurrentBag)
+            //{
+            //    Crawler crawler = new Crawler(robotsParser.GetResult(), logMessanger, parser, "");
+            //    parallelQueue.Queue(new KeyValuePair<string, Func<Task>>("me", () => crawler.CrawAsync(parallelQueue.GetTokenByName("me"))));
+            //}
+            //parallelQueue.Process();
+            ////fileWriterLogger.CloseLogger();
+            //Console.ReadLine();
+        }
+
+
         static void Main(string[] args)
         {
             SimpleStringCombiner stringCombiner = new SimpleStringCombiner();
-            FileWriterLogger fileWriterLogger = new FileWriterLogger(Path.Combine(@"D:\", "log.txt"), stringCombiner);
+            //FileWriterLogger fileWriterLogger = new FileWriterLogger(Path.Combine(@"D:\", "log.txt"), stringCombiner);
             ConsoleWriterLogger consoleWriterLogger = new ConsoleWriterLogger(stringCombiner);
-            InputLocalFileParser fileParser = new InputLocalFileParser(@"D:\input.txt", fileWriterLogger);
-            LogMessanger logMessanger=new LogMessanger();
-            logMessanger.Add("consoleWriter",consoleWriterLogger);
-            logMessanger.Add("filewriter",fileWriterLogger);
-            var array = fileParser.GetParsedArray();
-            RobotsFileDownloader robotsFileDownloader=new RobotsFileDownloader();
-            ParallelQueue parallelQueue=new ParallelQueue(2);
-            ConcurrentBag<RobotsParser> concurrentBag = new ConcurrentBag<RobotsParser>();
-            foreach (var domains in array)
+            LogMessanger logMessanger = new LogMessanger();
+            logMessanger.Add("consoleWriter", consoleWriterLogger);
+            //Console.WriteLine("Hello, put ur input file at line below");
+            //Console.WriteLine("input file looks like:");
+            //Console.WriteLine("<line>::=<domain><user_agent>|<crawl-delay>");
+            //Console.WriteLine("example:");
+            //Console.WriteLine("https://stackoverflow.com yandex\r\nhttp://theory.phphtml.net google\r\nhttp://www.mkyong.com yandex\r\nhttp://2coders.ru 300\r\nhttps://habrahabr.ru google");
+            Client client=new Client("me",consoleWriterLogger);
+            client.InitInterpreter();
+            while (!cancelConsole)
             {
-                RobotsParser robotsParser=new RobotsParser(domains, logMessanger,robotsFileDownloader);
-                concurrentBag.Add(robotsParser);
-                parallelQueue.Queue(() => robotsParser.ParseFileAsync());
+                client.Interpreter.Interpret(Console.ReadLine());
             }
-            parallelQueue.Process().Wait();
-            parallelQueue = new ParallelQueue(2);
-            RegularExpressionHttpParser parser=new RegularExpressionHttpParser();
-            foreach (var robotsParser in concurrentBag)
-            {
-                Crawler crawler=new Crawler(robotsParser.GetResult(),logMessanger,parser,"");
-                parallelQueue.Queue(() =>crawler.CrawAsync());
-            }
-            parallelQueue.Process().Wait();
-            fileWriterLogger.CloseLogger();
-            Console.ReadLine();
         }
 
 

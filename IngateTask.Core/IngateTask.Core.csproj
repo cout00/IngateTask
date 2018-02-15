@@ -42,6 +42,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Clients\Client.cs" />
+    <Compile Include="CommandInterpreter\Command.cs" />
+    <Compile Include="CommandInterpreter\Commands.cs" />
+    <Compile Include="CommandInterpreter\Interpreter.cs" />
     <Compile Include="Crawler\Crawler.cs" />
     <Compile Include="DefaultParams.cs" />
     <Compile Include="Extensions.cs" />

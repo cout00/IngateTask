@@ -131,6 +131,13 @@ namespace IngateTask.Core
                 .Replace("|", "_");
         }
 
+        public static IEnumerable<Type> GetAssignedType(this Type self, Func<Type,bool> matchPredicate)
+        {
+            return Assembly.GetAssembly(self)
+                .GetTypes()
+                .Where(type => self.IsAssignableFrom(self) && matchPredicate(type));
+        } 
+
         public static IEnumerable<Type> GetAgentsType()
         {
             return Assembly.GetExecutingAssembly()
