@@ -1,0 +1,5 @@
+http://www.speedtest.net yandexbot
+http://www.c-sharpcorner.com 700
+https://sankarsan.wordpress.com 4000
+https://habrahabr.ru/ googlebot
+http://poe.trade/ googlebot
