@@ -118,7 +118,9 @@ namespace IngateTask.Core.ParallelThread
                     new KeyValuePair<string, CancellationTokenSource>(futureTask.Key, cancellationToken));
                 t.ContinueWith(t2 => {
                     Task _temp;
+                    KeyValuePair<string,CancellationTokenSource > _temp2;
                     _runningTasks.TryRemove(t2.GetHashCode(), out _temp);
+                    _cancellationTokens.TryRemove(t2.GetHashCode(), out _temp2);
                     StartTasks();
                 });
             }

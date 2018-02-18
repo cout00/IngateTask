@@ -58,7 +58,8 @@ namespace IngateTask.Core.CommandInterpreter.CommandsList
                     () => crawler.CrawAsync(parallelQueue.GetTokenByName(result.Key.Host))));
             }
             _crawlLogProvider.SendNonStatusMessage("_____________________________________");
-            await parallelQueue.Process();
+            parallelQueue.Process().Wait();
+            _crawlLogProvider.SendStatusMessage(LogMessages.Update, "");
             return true;
         }
 

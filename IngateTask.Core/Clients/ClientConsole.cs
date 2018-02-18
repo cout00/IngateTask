@@ -28,7 +28,6 @@ namespace IngateTask.Core.Clients
 
             CommandOutPutPath commandOutPutPath = new CommandOutPutPath(UserLogProvider, this);
             
-            //ConsoleLocalDispatcher consoleLocalDispatcher=new ConsoleLocalDispatcher();            
             CommandStartCrawl commandStartCrawl = new CommandStartCrawl(UserLogProvider, this);
 
             Interpreter.Add(commandStartCrawl);

@@ -18,7 +18,8 @@ namespace IngateTask.Core.Crawler
         private readonly ILogProvider _logMessanger;
         private readonly List<string> visitedList = new List<string>();
         private string _output;
-        public double ReadedBytes { get; private set; } = 0;    
+        public double ReadedMbytes { get; private set; } = 0;
+        public double SavedPages { get; private set; } = 0;
 
         public Crawler(KeyValuePair<Uri, IUserAgent> inpParams, ILogProvider logMessanger, IHttpParser httpParser,
             string output)
@@ -43,13 +44,7 @@ namespace IngateTask.Core.Crawler
         }
 
         private void DirectRecursion(Uri nextPage, CancellationToken token)
-        {
-            if (token.IsCancellationRequested)
-            {
-                _logMessanger.SendStatusMessage(LogMessages.Warning,
-                    $"Domain {_inpParams.Key.OriginalString} crawling was canseled by user");
-                return;
-            }
+        {            
             try
             {
                 visitedList.Add(nextPage.OriginalString);
@@ -76,15 +71,19 @@ namespace IngateTask.Core.Crawler
                             using (StreamWriter outFile = File.CreateText(Path.Combine(_output, nextPage.ToFilePath())))
                             {
                                 outFile.WriteAsync(data).Wait();
-                                ReadedBytes +=Math.Round((data.Length*(double)sizeof(char))/(1024*1024));
-                                //outFile.Close();
+                                SavedPages++;
+                                ReadedMbytes +=((data.Length*(double)sizeof(char))/(1024*1024));
                             }
                             readStream.Close();
                             _logMessanger.SendStatusMessage(LogMessages.Event, $"I parsed {nextPage.OriginalString}");
                             foreach (Uri page in ParsePage(data, nextPage))
-                            {
+                            {                                
                                 Task.Delay(_inpParams.Value.GetCrawlDelay).Wait();
                                 DirectRecursion(page, token);
+                                if (token.IsCancellationRequested)
+                                {                                    
+                                    return;
+                                }
                             }
                         }
                     }

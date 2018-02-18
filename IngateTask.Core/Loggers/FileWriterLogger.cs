@@ -51,7 +51,6 @@ namespace IngateTask.Core.Loggers
                     case LogMessages.Update:
                     {
                         _streamWriter.Close();
-                        _streamWriter = File.AppendText(_path);
                         break;
                     }
                 }

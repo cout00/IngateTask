@@ -30,6 +30,7 @@ namespace IngateTask.Service.WCF.Commands
         {
             if (ClientConsoleLink._parallelQueue.GetRunnedTasksName().Contains(Parameter))
             {
+                _logProvider.SendStatusMessage(LogMessages.Warning, $"Please wait! this may take some time");
                 ClientConsoleLink._parallelQueue.CanselTask(Parameter);
                 return true;
             }
