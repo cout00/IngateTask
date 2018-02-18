@@ -16,7 +16,7 @@ namespace IngateTask.Core.Clients
         }
 
         public Interpreter Interpreter { get; set; }
-        public ParallelQueue _parallelQueue;
+        public ParallelQueue<Crawler.Crawler> _parallelQueue;
 
         public virtual void InitInterpreter()
         {

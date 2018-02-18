@@ -28,7 +28,7 @@ namespace IngateTask.Service.WCF.Commands
 
         public async override Task<bool> CommandAction()
         {
-            if (ClientConsoleLink._parallelQueue.GetRunnedTasksName().Contains(Parameter))
+            if (ClientConsoleLink._parallelQueue.GetRunnedTasksName().ContainsKey(Parameter))
             {
                 _logProvider.SendStatusMessage(LogMessages.Warning, $"Please wait! this may take some time");
                 ClientConsoleLink._parallelQueue.CanselTask(Parameter);

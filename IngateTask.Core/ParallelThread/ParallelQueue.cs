@@ -6,13 +6,23 @@ using System.Threading.Tasks;
 
 namespace IngateTask.Core.ParallelThread
 {
-    public class ParallelQueue
+    public class ThreadContext<Type> where Type : class, new()
+    {
+        public string ThreadKey { get; set; }
+        public CancellationTokenSource TokenSource { get; set; }
+        public Type AssisatedObject { get; set; }
+        public Func<Task> MethodPointer { get; set; }
+    }
+
+
+
+    public class ParallelQueue<Type> where Type : class, new()
     {
         /// <summary>
         /// соответствие хешь код - названию задачи и ее конселейшен токена
         /// </summary>
-        private readonly ConcurrentDictionary<int, KeyValuePair<string, CancellationTokenSource>> _cancellationTokens =
-            new ConcurrentDictionary<int, KeyValuePair<string, CancellationTokenSource>>();
+        private readonly ConcurrentDictionary<int, ThreadContext<Type>> _runningTasks =
+            new ConcurrentDictionary<int, ThreadContext<Type>>();
 
         private readonly int _maxRunningTasks;
 
@@ -20,13 +30,13 @@ namespace IngateTask.Core.ParallelThread
         /// очеред которая ждет в данный момент
         /// </summary>
 
-        private readonly ConcurrentQueue<KeyValuePair<string, Func<Task>>> _processingQueue =
-            new ConcurrentQueue<KeyValuePair<string, Func<Task>>>();
+        private readonly ConcurrentQueue<ThreadContext<Type>> _processingQueue =
+            new ConcurrentQueue<ThreadContext<Type>>();
 
         /// <summary>
         /// список выполняющихся задач
         /// </summary>
-        private readonly ConcurrentDictionary<int, Task> _runningTasks = new ConcurrentDictionary<int, Task>();
+        //private readonly ConcurrentDictionary<int, Task> _runningTasks = new ConcurrentDictionary<int, Task>();
 
         /// <summary>
         /// фабрика задач которым можно установить результат вручную. удобная вещь
@@ -38,9 +48,9 @@ namespace IngateTask.Core.ParallelThread
             _maxRunningTasks = maxRunningTasks;
         }
 
-        public void Queue(KeyValuePair<string, Func<Task>> futureTask)
+        public void Queue(ThreadContext<Type> context)
         {
-            _processingQueue.Enqueue(futureTask);
+            _processingQueue.Enqueue(context);
         }
 
         public int GetQueueCount()
@@ -55,11 +65,11 @@ namespace IngateTask.Core.ParallelThread
 
         public CancellationToken GetTokenByName(string name)
         {
-            foreach (KeyValuePair<int, KeyValuePair<string, CancellationTokenSource>> token in _cancellationTokens)
+            foreach (var task in _runningTasks)
             {
-                if (token.Value.Key == name)
+                if (task.Value.ThreadKey == name)
                 {
-                    return token.Value.Value.Token;
+                    return task.Value.TokenSource.Token;
                 }
             }
             return CancellationToken.None;
@@ -67,30 +77,30 @@ namespace IngateTask.Core.ParallelThread
 
         public void CanselTask(string name)
         {
-            foreach (KeyValuePair<int, KeyValuePair<string, CancellationTokenSource>> token in _cancellationTokens)
+            foreach (var task in _runningTasks)
             {
-                if (token.Value.Key == name)
+                if (task.Value.ThreadKey == name)
                 {
-                    token.Value.Value.Cancel();
+                    task.Value.TokenSource.Cancel();
                 }
             }
         }
 
-        public List<string> GetRunnedTasksName()
+        public Dictionary<string, Type> GetRunnedTasksName()
         {
-            List<string> temp=new List<string>();
-            foreach (KeyValuePair<int, KeyValuePair<string, CancellationTokenSource>> token in _cancellationTokens)
+            Dictionary<string, Type> temp = new Dictionary<string, Type>();
+            foreach (var task in _runningTasks)
             {
-                temp.Add(token.Value.Key);
+                temp.Add(task.Value.ThreadKey, task.Value.AssisatedObject);
             }
             return temp;
         }
 
         public void CancelAll()
         {
-            foreach (KeyValuePair<int, KeyValuePair<string, CancellationTokenSource>> token in _cancellationTokens)
+            foreach (var task in _runningTasks)
             {
-                token.Value.Value.Cancel();
+                task.Value.TokenSource.Cancel();
             }
         }
 
@@ -106,21 +116,21 @@ namespace IngateTask.Core.ParallelThread
             int startMaxCount = _maxRunningTasks - _runningTasks.Count;
             for (int i = 0; i < startMaxCount; i++)
             {
-                KeyValuePair<string, Func<Task>> futureTask;
-                if (!_processingQueue.TryDequeue(out futureTask))
+                ThreadContext<Type> context;
+                if (!_processingQueue.TryDequeue(out context))
                 {
                     break;
                 }
                 CancellationTokenSource cancellationToken = new CancellationTokenSource();
-                Task t = Task.Run(futureTask.Value, cancellationToken.Token);
-                _runningTasks.TryAdd(t.GetHashCode(), t);
-                _cancellationTokens.TryAdd(t.GetHashCode(),
-                    new KeyValuePair<string, CancellationTokenSource>(futureTask.Key, cancellationToken));
+                Task t = Task.Run(context.MethodPointer, cancellationToken.Token);
+                context.TokenSource = cancellationToken;
+                _runningTasks.TryAdd(t.GetHashCode(), context);
+
+                //_cancellationTokens.TryAdd(t.GetHashCode(),
+                // new KeyValuePair<string, CancellationTokenSource>(futureTask.Key, cancellationToken));
                 t.ContinueWith(t2 => {
-                    Task _temp;
-                    KeyValuePair<string,CancellationTokenSource > _temp2;
+                    ThreadContext<Type> _temp;
                     _runningTasks.TryRemove(t2.GetHashCode(), out _temp);
-                    _cancellationTokens.TryRemove(t2.GetHashCode(), out _temp2);
                     StartTasks();
                 });
             }

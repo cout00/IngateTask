@@ -9,7 +9,6 @@ namespace IngateTask.Core.Clients
     {
         public readonly ILogProvider UserLogProvider;    
         protected readonly string _name;
-        public ConcurrentBag<Crawler.Crawler> runnedCrawlers=new ConcurrentBag<Crawler.Crawler>();
 
         protected User(string name, ILogProvider userLogProvider)
         {

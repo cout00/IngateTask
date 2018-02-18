@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using IngateTask.PortableLibrary.UserAgents;
@@ -25,15 +26,7 @@ namespace IngateTask.Core
             return false;
         }
 
-        private static string AddSlash(string st)
-        {
-            if (!st.EndsWith("/"))
-            {
-                return st += "/";
-            }
-            return st;
-        }
-
+        
         private static string RemoveSlash(string st)
         {
             if (st.EndsWith("/"))
@@ -46,7 +39,7 @@ namespace IngateTask.Core
         public static bool UriIsAnchorOrRedirect(this Uri self)
         {
             return self.OriginalString.Contains("#") || self.OriginalString.Contains("?url=") ||
-                   self.OriginalString.Contains("&url=");
+                   self.OriginalString.Contains("&url=")|| self.OriginalString.Contains("?");
         }
 
 
@@ -56,12 +49,12 @@ namespace IngateTask.Core
             uri = RemoveSlash(uri);
             if (path.StartsWith("/"))
             {
-                return (RemoveSlash(selfUri.GetBaseAdress()) + AddSlash(path)).ToUri();
+                return (RemoveSlash(selfUri.GetBaseAdress()) + RemoveSlash(path)).ToUri();
             }
             if (path.StartsWith("./"))
             {
                 path = path.TrimStart('.');
-                return (uri + AddSlash(path)).ToUri();
+                return (uri + RemoveSlash(path)).ToUri();
             }
             return selfUri;
         }
@@ -70,9 +63,9 @@ namespace IngateTask.Core
         {
             if (!self.AbsolutePath.In("/", ""))
             {
-                return AddSlash(self.AbsoluteUri.Replace(self.AbsolutePath, ""));
+                return RemoveSlash(self.AbsoluteUri.Replace(self.AbsolutePath, ""));
             }
-            return AddSlash(self.OriginalString);
+            return RemoveSlash(self.OriginalString);
         }
 
 
@@ -95,7 +88,7 @@ namespace IngateTask.Core
 
         public static Uri ToUri(this string self)
         {
-            return new Uri(self, UriKind.RelativeOrAbsolute);
+            return new Uri(RemoveSlash(self), UriKind.RelativeOrAbsolute);
         }
 
         public static bool UriHaveSameDomens(this Uri self, Uri comparentUri)
@@ -105,16 +98,21 @@ namespace IngateTask.Core
 
         public static string ToFilePath(this Uri self)
         {
-            return self.LocalPath
-                       .Replace("\\", "_")
-                       .Replace("/", "_")
-                       .Replace(":", "_")
-                       .Replace("?", "_")
-                       .Replace("*", "_")
-                       .Replace("\"", "_")
-                       .Replace("<", "_")
-                       .Replace(">", "_")
-                       .Replace("|", "_") + ".txt";
+            var endstring= self.LocalPath
+                               .Replace("\\", "_")
+                               .Replace("/", "_")
+                               .Replace(":", "_")
+                               .Replace("?", "_")
+                               .Replace("*", "_")
+                               .Replace("\"", "_")
+                               .Replace("<", "_")
+                               .Replace(">", "_")
+                               .Replace("|", "_") + ".txt";
+            if (endstring.Length>=50)
+            {
+                endstring = Path.GetRandomFileName();
+            }
+            return endstring;
         }
 
 

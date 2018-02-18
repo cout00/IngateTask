@@ -30,6 +30,11 @@ namespace IngateTask.Core.Crawler
             _output = output;
         }
 
+        public Crawler()
+        {
+
+        }
+
         private IEnumerable<Uri> ParsePage(string page, Uri currentUri)
         {
             foreach (Uri uri in _httpParser.GetNestedUri(page, currentUri))
@@ -44,13 +49,13 @@ namespace IngateTask.Core.Crawler
         }
 
         private void DirectRecursion(Uri nextPage, CancellationToken token)
-        {            
+        {
             try
             {
                 visitedList.Add(nextPage.OriginalString);
-                HttpWebRequest request = (HttpWebRequest) WebRequest.Create(nextPage);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(nextPage);
                 request.UserAgent = _inpParams.Value.GetUserAgentFullName();
-                using (HttpWebResponse response = (HttpWebResponse) request.GetResponse())
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 {
                     if (response.ContentType.IsSubStringOf(DefaultParams.MEMETextList.ToArray()))
                     {
@@ -72,16 +77,22 @@ namespace IngateTask.Core.Crawler
                             {
                                 outFile.WriteAsync(data).Wait();
                                 SavedPages++;
-                                ReadedMbytes +=((data.Length*(double)sizeof(char))/(1024*1024));
+                                ReadedMbytes += ((data.Length * (double)sizeof(char)) / (1024 * 1024));
                             }
                             readStream.Close();
                             _logMessanger.SendStatusMessage(LogMessages.Event, $"I parsed {nextPage.OriginalString}");
                             foreach (Uri page in ParsePage(data, nextPage))
-                            {                                
+                            {
                                 Task.Delay(_inpParams.Value.GetCrawlDelay).Wait();
-                                DirectRecursion(page, token);
+                                // для тех кто только заходит в нору за кроликом
                                 if (token.IsCancellationRequested)
-                                {                                    
+                                {
+                                    return;
+                                }
+                                DirectRecursion(page, token);
+                                // для тех кто его поймал
+                                if (token.IsCancellationRequested)
+                                {
                                     return;
                                 }
                             }
@@ -99,8 +110,7 @@ namespace IngateTask.Core.Crawler
 
         public async Task CrawAsync(CancellationToken token)
         {
-            await Task.Run(() =>
-            {
+            await Task.Run(() => {
                 try
                 {
                     _output = Path.Combine(_output, _inpParams.Key.Host);
@@ -108,8 +118,16 @@ namespace IngateTask.Core.Crawler
                     _logMessanger.SendStatusMessage(LogMessages.Warning,
                         $"Domain {_inpParams.Key.OriginalString} start crawling use -help for more info");
                     DirectRecursion(_inpParams.Key, token);
-                    _logMessanger.SendStatusMessage(LogMessages.Warning,
-                        $"Domain {_inpParams.Key.OriginalString} Parsed!");
+                    if (token.IsCancellationRequested)
+                    {
+                        _logMessanger.SendStatusMessage(LogMessages.Warning,
+                            $"crawlin Domain {_inpParams.Key.OriginalString} was aborted");
+                    }
+                    else
+                    {
+                        _logMessanger.SendStatusMessage(LogMessages.Warning,
+                            $"Domain {_inpParams.Key.OriginalString} Parsed!");
+                    }
                 }
                 catch (Exception e)
                 {

@@ -33,7 +33,7 @@ namespace IngateTask.Service.WCF.Commands
                 }
                 return true;
             }
-            return false;
+            return true;
         }
 
 

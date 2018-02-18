@@ -35,30 +35,40 @@ namespace IngateTask.Core.CommandInterpreter.CommandsList
         public async override Task<bool> CommandAction()
         {            
             RobotsFileDownloader robotsFileDownloader = new RobotsFileDownloader();
-            ParallelQueue parallelQueue = new ParallelQueue(ClientConsoleLink.ThreadNumber);
+            ParallelQueue<RobotsParser> parallelQueue = new ParallelQueue<RobotsParser>(ClientConsoleLink.ThreadNumber);
             ConcurrentBag<RobotsParser> concurrentBag = new ConcurrentBag<RobotsParser>();
 
             foreach (var domains in ClientConsoleLink.InputFieldses)
             {
                 RobotsParser robotsParser = new RobotsParser(domains, _crawlLogProvider, robotsFileDownloader);
                 concurrentBag.Add(robotsParser);
-                parallelQueue.Queue(new KeyValuePair<string, Func<Task>>("", () => robotsParser.ParseFileAsync()));
+                ThreadContext<RobotsParser> threadContext=new ThreadContext<RobotsParser>();
+                threadContext.ThreadKey = "me";
+                threadContext.MethodPointer = () => robotsParser.ParseFileAsync();
+                threadContext.AssisatedObject = robotsParser;
+                parallelQueue.Queue(threadContext);
             }
             parallelQueue.Process().Wait();
             _crawlLogProvider.SendNonStatusMessage("_____________________________________");
-            parallelQueue = new ParallelQueue(ClientConsoleLink.ThreadNumber);
-            ClientConsoleLink._parallelQueue = parallelQueue;
+
+            ParallelQueue<Crawler.Crawler> parallelQueueCrawler = new ParallelQueue<Crawler.Crawler>(ClientConsoleLink.ThreadNumber);
+            ClientConsoleLink._parallelQueue = parallelQueueCrawler;
             RegularExpressionHttpParser parser = new RegularExpressionHttpParser();
             foreach (RobotsParser robotsParser in concurrentBag)
             {
                 var result = robotsParser.GetResult();
                 Crawler.Crawler crawler = new Crawler.Crawler(result, _crawlLogProvider, parser,
                     ClientConsoleLink.OutPutPath);
-                parallelQueue.Queue(new KeyValuePair<string, Func<Task>>(result.Key.Host,
-                    () => crawler.CrawAsync(parallelQueue.GetTokenByName(result.Key.Host))));
+                ThreadContext<Crawler.Crawler> context=new ThreadContext<Crawler.Crawler>();
+                context.AssisatedObject = crawler;
+                context.ThreadKey = result.Key.Host;
+                context.MethodPointer = () => crawler.CrawAsync(parallelQueueCrawler.GetTokenByName(result.Key.Host));
+                parallelQueueCrawler.Queue(context);
             }
             _crawlLogProvider.SendNonStatusMessage("_____________________________________");
-            parallelQueue.Process().Wait();
+            parallelQueueCrawler.Process().Wait();
+            ClientConsoleLink._parallelQueue = null;
+            ClientConsoleLink.InputFieldses = null;
             _crawlLogProvider.SendStatusMessage(LogMessages.Update, "");
             return true;
         }
@@ -105,7 +115,7 @@ namespace IngateTask.Core.CommandInterpreter.CommandsList
                 }
                 return true;    
             }
-            return false;
+            return true;
         }
 
         public override bool ResumeRequarement()
