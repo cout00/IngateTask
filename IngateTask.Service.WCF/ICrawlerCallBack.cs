@@ -11,5 +11,7 @@ namespace IngateTask.Service.WCF
     {
         [OperationContract]
         void OnCallBack(string msg);
+        [OperationContract]
+        void GetClientData(bool sendMeData, string filePath);
     }
 }

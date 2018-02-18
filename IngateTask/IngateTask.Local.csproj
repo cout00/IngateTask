@@ -71,6 +71,10 @@
       <Project>{b668abea-2cd1-47ea-a67f-01b56191df43}</Project>
       <Name>IngateTask.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\IngateTask.PortableLibrary\IngateTask.PortableLibrary.csproj">
+      <Project>{455793A6-64A5-4958-83FB-DC309BBF5C7D}</Project>
+      <Name>IngateTask.PortableLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6">

@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 using IngateTask.Core.Clients;
-using IngateTask.Core.Interfaces;
+using IngateTask.PortableLibrary.Interfaces;
 
 namespace IngateTask.Core.CommandInterpreter
 {
@@ -21,26 +22,26 @@ namespace IngateTask.Core.CommandInterpreter
         /// <summary>
         ///     устанавливает свойство
         /// </summary>
-        public Func<object, bool> PropertySetter { get; set; }
+        public abstract bool PropertySetter(object obj);
 
         /// <summary>
         ///     происходит при попытке вызова команды
         /// </summary>
-        public Func<bool> InvokeRequarement { get; set; }
+        public abstract bool InvokeRequarement();
 
         /// <summary>
         ///     происходит если команда требует продолжения
         /// </summary>
-        public Func<bool> ResumeRequarement { get; set; }
+        public abstract bool ResumeRequarement();
 
         /// <summary>
         ///     происходит если вызов не удался
         /// </summary>
-        public Func<string> OnFailFunc { get; set; }
+        public abstract string OnFailFunc();
 
         public string Parameter { get; set; }
         public abstract string CommandDiscription { get; }
 
-        public abstract bool CommandAction();
+        public abstract Task<bool> CommandAction();
     }
 }

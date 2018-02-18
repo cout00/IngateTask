@@ -8,24 +8,30 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace IngateTask.Client.WCF.CrawlerServices {
+namespace IngateTask.Client.WCF.CrawlerService {
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="CrawlerServices.ICrawler", CallbackContract=typeof(IngateTask.Client.WCF.CrawlerServices.ICrawlerCallback))]
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="CrawlerService.ICrawler", CallbackContract=typeof(IngateTask.Client.WCF.CrawlerService.ICrawlerCallback))]
     public interface ICrawler {
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICrawler/DoWork", ReplyAction="http://tempuri.org/ICrawler/DoWorkResponse")]
-        void DoWork(string msg);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICrawler/SetInputData", ReplyAction="http://tempuri.org/ICrawler/SetInputDataResponse")]
+        void SetInputData(IngateTask.PortableLibrary.Classes.InputFields[] inputFieldses);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICrawler/DoWork", ReplyAction="http://tempuri.org/ICrawler/DoWorkResponse")]
-        System.Threading.Tasks.Task DoWorkAsync(string msg);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICrawler/SetInputData", ReplyAction="http://tempuri.org/ICrawler/SetInputDataResponse")]
+        System.Threading.Tasks.Task SetInputDataAsync(IngateTask.PortableLibrary.Classes.InputFields[] inputFieldses);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICrawler/Interpret", ReplyAction="http://tempuri.org/ICrawler/InterpretResponse")]
+        void Interpret(string command);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICrawler/Interpret", ReplyAction="http://tempuri.org/ICrawler/InterpretResponse")]
+        System.Threading.Tasks.Task InterpretAsync(string command);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICrawler/OpenSession", ReplyAction="http://tempuri.org/ICrawler/OpenSessionResponse")]
-        void OpenSession();
+        void OpenSession(string userName);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICrawler/OpenSession", ReplyAction="http://tempuri.org/ICrawler/OpenSessionResponse")]
-        System.Threading.Tasks.Task OpenSessionAsync();
+        System.Threading.Tasks.Task OpenSessionAsync(string userName);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -33,15 +39,18 @@ namespace IngateTask.Client.WCF.CrawlerServices {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICrawler/OnCallBack", ReplyAction="http://tempuri.org/ICrawler/OnCallBackResponse")]
         void OnCallBack(string msg);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ICrawler/GetClientData", ReplyAction="http://tempuri.org/ICrawler/GetClientDataResponse")]
+        void GetClientData(bool sendMeData, string filePath);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface ICrawlerChannel : IngateTask.Client.WCF.CrawlerServices.ICrawler, System.ServiceModel.IClientChannel {
+    public interface ICrawlerChannel : IngateTask.Client.WCF.CrawlerService.ICrawler, System.ServiceModel.IClientChannel {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class CrawlerClient : System.ServiceModel.DuplexClientBase<IngateTask.Client.WCF.CrawlerServices.ICrawler>, IngateTask.Client.WCF.CrawlerServices.ICrawler {
+    public partial class CrawlerClient : System.ServiceModel.DuplexClientBase<IngateTask.Client.WCF.CrawlerService.ICrawler>, IngateTask.Client.WCF.CrawlerService.ICrawler {
         
         public CrawlerClient(System.ServiceModel.InstanceContext callbackInstance) : 
                 base(callbackInstance) {
@@ -63,20 +72,28 @@ namespace IngateTask.Client.WCF.CrawlerServices {
                 base(callbackInstance, binding, remoteAddress) {
         }
         
-        public void DoWork(string msg) {
-            base.Channel.DoWork(msg);
+        public void SetInputData(IngateTask.PortableLibrary.Classes.InputFields[] inputFieldses) {
+            base.Channel.SetInputData(inputFieldses);
         }
         
-        public System.Threading.Tasks.Task DoWorkAsync(string msg) {
-            return base.Channel.DoWorkAsync(msg);
+        public System.Threading.Tasks.Task SetInputDataAsync(IngateTask.PortableLibrary.Classes.InputFields[] inputFieldses) {
+            return base.Channel.SetInputDataAsync(inputFieldses);
         }
         
-        public void OpenSession() {
-            base.Channel.OpenSession();
+        public void Interpret(string command) {
+            base.Channel.Interpret(command);
         }
         
-        public System.Threading.Tasks.Task OpenSessionAsync() {
-            return base.Channel.OpenSessionAsync();
+        public System.Threading.Tasks.Task InterpretAsync(string command) {
+            return base.Channel.InterpretAsync(command);
+        }
+        
+        public void OpenSession(string userName) {
+            base.Channel.OpenSession(userName);
+        }
+        
+        public System.Threading.Tasks.Task OpenSessionAsync(string userName) {
+            return base.Channel.OpenSessionAsync(userName);
         }
     }
 }

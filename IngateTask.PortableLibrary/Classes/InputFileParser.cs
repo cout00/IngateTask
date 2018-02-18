@@ -2,32 +2,33 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using IngateTask.Core.Interfaces;
-using IngateTask.Core.Loggers;
-using IngateTask.Core.UserAgents;
+using IngateTask.PortableLibrary.Interfaces;
+using IngateTask.PortableLibrary.UserAgents;
+using System.Runtime.Serialization;
 
-namespace IngateTask.Core.Parsers
+namespace IngateTask.PortableLibrary.Classes
 {
     /// <summary>
     ///     тут можно спорить вечно но по рихтеру они не боксятся, сам не проверял
     /// </summary>
-    [Serializable]
+    [DataContract]
     public struct InputFields
     {
+        [DataMember]
         public string Domain { get; set; }
-
         /// <summary>
         ///     памяти и так много
         /// </summary>
+        [DataMember]
         public dynamic UserAgent { get; set; }
     }
 
 
     public class InputLocalFileParser
     {
+        private readonly List<InputFields> _fieldses = new List<InputFields>();
         private readonly ILogProvider _logProvider;
         private readonly string _path;
-        private readonly List<InputFields> _fieldses = new List<InputFields>();
         private readonly List<string> allowedUserAgents;
 
         public InputLocalFileParser(string path, ILogProvider logProvider)
@@ -44,7 +45,7 @@ namespace IngateTask.Core.Parsers
 
         public List<InputFields> GetParsedArray()
         {
-            var stringArray = new string[1] {" "};
+            string[] stringArray = new string[1] {" "};
             try
             {
                 stringArray = File.ReadAllLines(_path);
@@ -55,9 +56,15 @@ namespace IngateTask.Core.Parsers
                     $"Sorry, path {_path} is wrong try againe {e.Message}");
                 return null;
             }
-            for (var i = 0; i < stringArray.Length; i++)
+            if (stringArray.Length==0)
             {
-                var subString = stringArray[i].Trim().Split(' ');
+                _logProvider.SendStatusMessage(LogMessages.Error,
+                    $"Sorry, file at {_path} is empty try againe");
+                return null;
+            }
+            for (int i = 0; i < stringArray.Length; i++)
+            {
+                string[] subString = stringArray[i].Trim().Split(' ');
                 if (subString.Length > 2)
                 {
                     _logProvider.SendStatusMessage(LogMessages.Error,
@@ -66,8 +73,10 @@ namespace IngateTask.Core.Parsers
                     continue;
                 }
                 if (subString[0].Last() != '/')
+                {
                     subString[0] = subString[0] += '/';
-                var tryConvertDelay = 0;
+                }
+                int tryConvertDelay = 0;
                 if (int.TryParse(subString[1], out tryConvertDelay))
                 {
                     _fieldses.Add(new InputFields {Domain = subString[0], UserAgent = tryConvertDelay});

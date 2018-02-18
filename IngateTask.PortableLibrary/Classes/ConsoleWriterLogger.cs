@@ -1,7 +1,7 @@
 ﻿using System;
-using IngateTask.Core.Interfaces;
+using IngateTask.PortableLibrary.Interfaces;
 
-namespace IngateTask.Core.Loggers
+namespace IngateTask.PortableLibrary.Classes
 {
     public class ConsoleWriterLogger : ILogProvider
     {

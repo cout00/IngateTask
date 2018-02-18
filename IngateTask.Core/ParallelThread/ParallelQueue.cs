@@ -41,36 +41,46 @@ namespace IngateTask.Core.ParallelThread
 
         public CancellationToken GetTokenByName(string name)
         {
-            foreach (var token in _cancellationTokens)
+            foreach (KeyValuePair<int, KeyValuePair<string, CancellationTokenSource>> token in _cancellationTokens)
+            {
                 if (token.Value.Key == name)
+                {
                     return token.Value.Value.Token;
+                }
+            }
             return CancellationToken.None;
         }
 
         public void CanselTask(string name)
         {
-            foreach (var token in _cancellationTokens)
+            foreach (KeyValuePair<int, KeyValuePair<string, CancellationTokenSource>> token in _cancellationTokens)
+            {
                 if (token.Value.Key == name)
+                {
                     token.Value.Value.Cancel();
+                }
+            }
         }
 
         public async Task Process()
         {
-            var t = _tscQueue.Task;
+            Task<bool> t = _tscQueue.Task;
             StartTasks();
             await t;
         }
 
         private void StartTasks()
         {
-            var startMaxCount = _maxRunningTasks - _runningTasks.Count;
-            for (var i = 0; i < startMaxCount; i++)
+            int startMaxCount = _maxRunningTasks - _runningTasks.Count;
+            for (int i = 0; i < startMaxCount; i++)
             {
                 KeyValuePair<string, Func<Task>> futureTask;
                 if (!_processingQueue.TryDequeue(out futureTask))
+                {
                     break;
-                var cancellationToken = new CancellationTokenSource();
-                var t = Task.Run(futureTask.Value, cancellationToken.Token);
+                }
+                CancellationTokenSource cancellationToken = new CancellationTokenSource();
+                Task t = Task.Run(futureTask.Value, cancellationToken.Token);
                 _runningTasks.TryAdd(t.GetHashCode(), t);
                 _cancellationTokens.TryAdd(t.GetHashCode(),
                     new KeyValuePair<string, CancellationTokenSource>(futureTask.Key, cancellationToken));
@@ -83,7 +93,7 @@ namespace IngateTask.Core.ParallelThread
             }
             if (_processingQueue.IsEmpty && _runningTasks.IsEmpty)
             {
-                var _oldQueue = Interlocked.Exchange(
+                TaskCompletionSource<bool> _oldQueue = Interlocked.Exchange(
                     ref _tscQueue, new TaskCompletionSource<bool>());
                 _oldQueue.TrySetResult(true);
             }

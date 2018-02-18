@@ -1,4 +1,5 @@
-﻿using IngateTask.Core.Interfaces;
+﻿
+using IngateTask.PortableLibrary.Interfaces;
 
 namespace IngateTask.Core.Loggers
 {

@@ -2,7 +2,8 @@
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using IngateTask.Core.Interfaces;
+using System.Threading.Tasks;
+using IngateTask.PortableLibrary.Interfaces;
 
 [assembly: InternalsVisibleTo("IngateTask.Tests")]
 
@@ -17,33 +18,43 @@ namespace IngateTask.Core.CommandInterpreter
             _logProvider = logProvider;
         }
 
-        public bool Interpret(string inpCommand)
+        public async Task<bool> Interpret(string inpCommand)
         {
-            var command = Parse(inpCommand);
+            Command command = Parse(inpCommand);
             if (command == null)
+            {
                 return false;
+            }
             if (!command.PropertySetter(command.Parameter))
+            {
                 return false;
+            }
             if (command.InvokeRequarement())
-                if (command.CommandAction())
-                {
+            {
+                if (await command.CommandAction())
+                {                   
                     _logProvider.SendNonStatusMessage("OK");
                     return true;
                 }
-                else
-                {
-                    return command.ResumeRequarement();
-                }
-            if (command.OnFailFunc != null)
-                _logProvider.SendNonStatusMessage(command.OnFailFunc());
+                return command.ResumeRequarement();
+            }
+            var failMsg = command.OnFailFunc();
+            if (failMsg.Length!=0)
+            {
+                _logProvider.SendNonStatusMessage(failMsg);
+            }
             return false;
         }
 
         internal Command FindCommand(string name)
         {
-            foreach (var command in this)
+            foreach (Command command in this)
+            {
                 if (string.Compare(command.CommandName.ToLower(), name) == 0)
+                {
                     return command;
+                }
+            }
             return null;
         }
 
@@ -55,9 +66,11 @@ namespace IngateTask.Core.CommandInterpreter
                 _logProvider.SendNonStatusMessage($"Parse error. command {inpstr} unknow");
                 return null;
             }
-            var splitRes = inpstr.Split(' ');
+            string[] splitRes = inpstr.Split(' ');
             if (splitRes.Length == 0)
+            {
                 return null;
+            }
             Command command = null;
             command = FindCommand(splitRes.First());
             if (splitRes.Length == 1)
@@ -76,8 +89,10 @@ namespace IngateTask.Core.CommandInterpreter
             else
             {
                 command.Parameter = string.Empty;
-                for (var i = 1; i < splitRes.Length; i++)
+                for (int i = 1; i < splitRes.Length; i++)
+                {
                     command.Parameter += splitRes[i] + ' ';
+                }
                 command.Parameter.Trim(' ');
             }
             return command;

@@ -2,37 +2,49 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Security.Policy;
 using System.ServiceModel;
 using System.Text;
+using System.Threading.Tasks;
 using System.Timers;
+using IngateTask.Core.Clients;
+using IngateTask.Core.Loggers;
+using IngateTask.PortableLibrary.Classes;
+using IngateTask.Service.WCF.Logger;
 
 namespace IngateTask.Service.WCF
 {
     // ПРИМЕЧАНИЕ. Команду "Переименовать" в меню "Рефакторинг" можно использовать для одновременного изменения имени класса "Crawler" в коде и файле конфигурации.
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession)]
-    public class Crawler :ICrawler
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession, 
+        ConcurrencyMode = ConcurrencyMode.Multiple, 
+        UseSynchronizationContext = false, IncludeExceptionDetailInFaults = true)]
+    public class Crawler :ICrawler, IDisposable
     {
-        private int test = 0;
-        public static ICrawlerCallBack CrawlerCallBack;
-        Timer Timer=new Timer();
-
-        public void DoWork(string msg)
+        public ICrawlerCallBack _crawlerCallBack;
+        WCFConsoleClient client;
+        public void Dispose()
         {
-            //CrawlerCallBack.OnCallBack($"Server: {msg}");
+            var i = 1;
+            //throw new NotImplementedException();
+        }
+        public async Task Interpret(string command)
+        {
+            await client.Interpreter.Interpret(command);
         }
 
-        public void OpenSession()
+        public void OpenSession(string userName)
         {
-            CrawlerCallBack = OperationContext.Current.GetCallbackChannel<ICrawlerCallBack>();
-            Timer.Elapsed += Timer_Elapsed;
-            Timer.Interval = 1000;
-            Timer.Start();
+            _crawlerCallBack = OperationContext.Current.GetCallbackChannel<ICrawlerCallBack>();
+            ServerStringCombiner stringCombiner = new ServerStringCombiner();
+            ServiceCallBackDispatcher serviceCallBackDispatcher = new ServiceCallBackDispatcher(_crawlerCallBack, stringCombiner);
+            serviceCallBackDispatcher.SendNonStatusMessage($"Hello {userName}");
+            client = new WCFConsoleClient(userName, serviceCallBackDispatcher, _crawlerCallBack);
+            client.InitInterpreter();
         }
 
-        private void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        public void SetInputData(InputFields[] inputFieldses)
         {
-            CrawlerCallBack.OnCallBack($"Server: {test} {OperationContext.Current.SessionId}");
-            test++;
+            client.InputFieldses = inputFieldses.ToList();
         }
     }
 }

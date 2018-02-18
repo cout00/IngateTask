@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 using IngateTask.Core.Clients;
 using IngateTask.Core.Loggers;
+using IngateTask.PortableLibrary.Classes;
 
 namespace IngateTask.Local
 {
@@ -10,15 +12,19 @@ namespace IngateTask.Local
 
         private static void Main(string[] args)
         {
-            var stringCombiner = new ServerStringCombiner();
-            var consoleWriterLogger = new ConsoleWriterLogger(stringCombiner);
-            var logMessanger = new LogMessanger();
-            logMessanger.Add("consoleWriter", consoleWriterLogger);
-            var clientConsole = new ClientConsole("me", consoleWriterLogger);
-            //Directory.CreateDirectory(@"D:\\me\\www.speedtest.net");
-            clientConsole.InitInterpreter();
-            while (!cancelConsole)
-                clientConsole.Interpreter.Interpret(Console.ReadLine());
+            Task.Factory.StartNew(() =>
+            {
+                var stringCombiner = new ServerStringCombiner();
+                var consoleWriterLogger = new ConsoleWriterLogger(stringCombiner);
+                var logMessanger = new LogMessanger();
+                logMessanger.Add(consoleWriterLogger);
+                var clientConsole = new ClientConsole("me", consoleWriterLogger);
+                clientConsole.InitInterpreter();
+                while (!cancelConsole)
+                    clientConsole.Interpreter.Interpret(Console.ReadLine());
+            }).Wait();
+            
+            
         }
     }
 }

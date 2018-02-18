@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using IngateTask.Core.Interfaces;
-using IngateTask.Core.Parsers;
+using IngateTask.PortableLibrary.Interfaces;
+using IngateTask.PortableLibrary.Classes;
 
 namespace IngateTask.Core.Clients
 {

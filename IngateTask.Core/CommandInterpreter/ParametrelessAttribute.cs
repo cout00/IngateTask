@@ -3,7 +3,7 @@
 namespace IngateTask.Core.CommandInterpreter
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    internal sealed class ParametrelessAttribute : Attribute
+    public sealed class ParametrelessAttribute : Attribute
     {
     }
 }

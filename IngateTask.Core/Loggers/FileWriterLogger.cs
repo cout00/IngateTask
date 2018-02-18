@@ -1,14 +1,15 @@
 ﻿using System.IO;
 using IngateTask.Core.Interfaces;
+using IngateTask.PortableLibrary.Interfaces;
 
 namespace IngateTask.Core.Loggers
 {
     public class FileWriterLogger : ILogProvider
     {
-        private readonly ILogStringCombiner _stringCombiner;
         private readonly string _path;
-        private StreamWriter _streamWriter;
+        private readonly ILogStringCombiner _stringCombiner;
         private readonly object syncObject = new object();
+        private StreamWriter _streamWriter;
 
         public FileWriterLogger(string path, ILogStringCombiner stringCombiner)
         {

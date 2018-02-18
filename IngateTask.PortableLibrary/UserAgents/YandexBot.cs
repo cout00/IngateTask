@@ -1,19 +1,17 @@
-﻿using IngateTask.Core.Interfaces;
-
-namespace IngateTask.Core.UserAgents
+﻿namespace IngateTask.PortableLibrary.UserAgents
 {
-    public class CustomAgent : IUserAgent
+    public class YandexBot : IUserAgent
     {
         public int GetCrawlDelay { get; set; }
 
         public string GetUserAgentFullName()
         {
-            return "CustomBot";
+            return "Mozilla/5.0 (compatible; YandexBot/3.0)";
         }
 
         public string GetUserAgentName()
         {
-            return "CustomBot";
+            return "Yandex";
         }
     }
 }

@@ -43,13 +43,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\CommandReadInputFileToServer.cs" />
+    <Compile Include="Commands\CommandRunnedInfo.cs" />
+    <Compile Include="Logger\ConsoleWCFDispatcher.cs" />
     <Compile Include="Crawler.cs" />
     <Compile Include="ICrawler.cs" />
     <Compile Include="ICrawlerCallBack.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Logger\ServiceCallBackDispatcher.cs" />
+    <Compile Include="WCFConsoleClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\IngateTask.Core\IngateTask.Core.csproj">
+      <Project>{B668ABEA-2CD1-47EA-A67F-01B56191DF43}</Project>
+      <Name>IngateTask.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\IngateTask.PortableLibrary\IngateTask.PortableLibrary.csproj">
+      <Project>{455793A6-64A5-4958-83FB-DC309BBF5C7D}</Project>
+      <Name>IngateTask.PortableLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

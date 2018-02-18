@@ -1,4 +1,4 @@
-﻿namespace IngateTask.Core.Interfaces
+﻿namespace IngateTask.PortableLibrary.UserAgents
 {
     public interface IUserAgent
     {

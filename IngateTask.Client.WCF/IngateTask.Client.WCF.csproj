@@ -48,7 +48,7 @@
     <Compile Include="CallBack.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Service References\CrawlerServices\Reference.cs">
+    <Compile Include="Service References\CrawlerService\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -56,11 +56,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Service References\CrawlerServices\Crawler.wsdl" />
-    <None Include="Service References\CrawlerServices\item.xsd">
+    <None Include="Service References\CrawlerService\Crawler.wsdl" />
+    <None Include="Service References\CrawlerService\item.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\CrawlerServices\item1.xsd">
+    <None Include="Service References\CrawlerService\item1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\CrawlerService\item2.xsd">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
@@ -68,28 +71,32 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadataStorage Include="Service References\CrawlerServices\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\CrawlerServices\item.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\CrawlerServices\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\CrawlerServices\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\CrawlerServices\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
+    <ProjectReference Include="..\IngateTask.PortableLibrary\IngateTask.PortableLibrary.csproj">
+      <Project>{455793A6-64A5-4958-83FB-DC309BBF5C7D}</Project>
+      <Name>IngateTask.PortableLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\IngateTask.Service.WCF\IngateTask.Service.WCF.csproj">
       <Project>{F5D5120C-E6FC-4C82-AF59-9CA2A022B7EC}</Project>
       <Name>IngateTask.Service.WCF</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\CrawlerService\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\CrawlerService\item.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\CrawlerService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\CrawlerService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\CrawlerService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

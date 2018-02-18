@@ -10,15 +10,17 @@ namespace IngateTask.Core.Parsers
     {
         public IEnumerable<Uri> GetNestedUri(string page, Uri baseUri)
         {
-            var regex = new Regex(@"<a\s+(?:[^>]*?\s+)?href=([""'])(.*?)\1");
-            var collection = regex.Matches(page);
-            for (var i = 0; i < collection.Count; i++)
+            Regex regex = new Regex(@"<a\s+(?:[^>]*?\s+)?href=([""'])(.*?)\1");
+            MatchCollection collection = regex.Matches(page);
+            for (int i = 0; i < collection.Count; i++)
+            {
                 if (!MimeMapping.GetMimeMapping(collection[i].Groups[2].Value)
                     .In(DefaultParams.MemeNonTextList.ToArray()))
                 {
-                    var link = collection[i].Groups[2].Value.ToUri().Merge(baseUri);
+                    Uri link = collection[i].Groups[2].Value.ToUri().Merge(baseUri);
                     yield return link;
                 }
+            }
         }
     }
 }

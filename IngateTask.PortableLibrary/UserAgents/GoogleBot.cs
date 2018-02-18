@@ -1,6 +1,4 @@
-﻿using IngateTask.Core.Interfaces;
-
-namespace IngateTask.Core.UserAgents
+﻿namespace IngateTask.PortableLibrary.UserAgents
 {
     public class GoogleBot : IUserAgent
     {

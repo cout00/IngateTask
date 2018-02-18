@@ -11,14 +11,16 @@ namespace IngateTask.Core.Parsers
     {
         public List<string> GetFileFromDomain(string uri)
         {
-            var link = $"{uri}/robots.txt";
-            var webClient = new WebClient();
+            string link = $"{uri}/robots.txt";
+            WebClient webClient = new WebClient();
             webClient.Encoding = Encoding.UTF8;
-            var list = new List<string>();
-            using (var stream = new StreamReader(webClient.OpenRead(new Uri(link))))
+            List<string> list = new List<string>();
+            using (StreamReader stream = new StreamReader(webClient.OpenRead(new Uri(link))))
             {
-                foreach (var str in stream.ReadToEnd().Split('\r', '\n'))
+                foreach (string str in stream.ReadToEnd().Split('\r', '\n'))
+                {
                     list.Add(str.ToLower());
+                }
             }
             return list;
         }
