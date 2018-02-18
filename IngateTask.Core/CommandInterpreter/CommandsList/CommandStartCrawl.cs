@@ -14,11 +14,14 @@ namespace IngateTask.Core.CommandInterpreter.CommandsList
     [Parametreless]
     public class CommandStartCrawl :Command
     {
+
         public CommandStartCrawl(ILogProvider logProvider, ClientConsole clientConsoleLink) : base(logProvider,
             clientConsoleLink)
         {
+
         }
 
+        protected ILogProvider _crawlLogProvider; 
         public override string CommandDiscription
         {
             get { return "start crawling by inited params"; }
@@ -30,37 +33,31 @@ namespace IngateTask.Core.CommandInterpreter.CommandsList
         }
 
         public async override Task<bool> CommandAction()
-        {
-            try
-            {
-                Directory.CreateDirectory(ClientConsoleLink.OutPutPath);
-            }
-            catch (Exception e)
-            {
-                _logProvider.SendStatusMessage(LogMessages.Exceptions, e.Message);
-                return false;
-            }
+        {            
             RobotsFileDownloader robotsFileDownloader = new RobotsFileDownloader();
             ParallelQueue parallelQueue = new ParallelQueue(ClientConsoleLink.ThreadNumber);
             ConcurrentBag<RobotsParser> concurrentBag = new ConcurrentBag<RobotsParser>();
-            ConsoleLocalDispatcher consoleLocalDispatcher = new ConsoleLocalDispatcher(ClientConsoleLink.OutPutPath);
+
             foreach (var domains in ClientConsoleLink.InputFieldses)
             {
-                RobotsParser robotsParser = new RobotsParser(domains, consoleLocalDispatcher, robotsFileDownloader);
+                RobotsParser robotsParser = new RobotsParser(domains, _crawlLogProvider, robotsFileDownloader);
                 concurrentBag.Add(robotsParser);
                 parallelQueue.Queue(new KeyValuePair<string, Func<Task>>("", () => robotsParser.ParseFileAsync()));
             }
             parallelQueue.Process().Wait();
+            _crawlLogProvider.SendNonStatusMessage("_____________________________________");
             parallelQueue = new ParallelQueue(ClientConsoleLink.ThreadNumber);
             ClientConsoleLink._parallelQueue = parallelQueue;
             RegularExpressionHttpParser parser = new RegularExpressionHttpParser();
             foreach (RobotsParser robotsParser in concurrentBag)
             {
-                Crawler.Crawler crawler = new Crawler.Crawler(robotsParser.GetResult(), consoleLocalDispatcher, parser,
+                var result = robotsParser.GetResult();
+                Crawler.Crawler crawler = new Crawler.Crawler(result, _crawlLogProvider, parser,
                     ClientConsoleLink.OutPutPath);
-                parallelQueue.Queue(new KeyValuePair<string, Func<Task>>("me",
-                    () => crawler.CrawAsync(parallelQueue.GetTokenByName("me"))));
+                parallelQueue.Queue(new KeyValuePair<string, Func<Task>>(result.Key.Host,
+                    () => crawler.CrawAsync(parallelQueue.GetTokenByName(result.Key.Host))));
             }
+            _crawlLogProvider.SendNonStatusMessage("_____________________________________");
             await parallelQueue.Process();
             return true;
         }
@@ -92,7 +89,22 @@ namespace IngateTask.Core.CommandInterpreter.CommandsList
 
         public override bool PropertySetter(object obj)
         {
-            return true;
+            if (ClientConsoleLink.OutPutPath.Length!=0)
+            {
+                try
+                {
+                    Directory.CreateDirectory(ClientConsoleLink.OutPutPath);
+                    ConsoleLocalDispatcher consoleLocalDispatcher=new ConsoleLocalDispatcher(ClientConsoleLink.OutPutPath);
+                    _crawlLogProvider = consoleLocalDispatcher;
+                }
+                catch (Exception e)
+                {
+                    _logProvider.SendStatusMessage(LogMessages.Exceptions, e.Message);
+                    return false;
+                }
+                return true;    
+            }
+            return false;
         }
 
         public override bool ResumeRequarement()

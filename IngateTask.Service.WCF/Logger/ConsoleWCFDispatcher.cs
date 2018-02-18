@@ -34,7 +34,7 @@ namespace IngateTask.Service.WCF.Logger
             {
                 case LogMessages.Error:
                 case LogMessages.Exceptions:
-                case LogMessages.Event:
+                case LogMessages.Warning:
                     {
                         serviceCallBackDispatcher.SendStatusMessage(mgsStatus, msg);
                         break;

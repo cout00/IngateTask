@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using IngateTask.Core.Clients;
 using IngateTask.Core.CommandInterpreter;
 using IngateTask.PortableLibrary.Interfaces;
+using IngateTask.Core.CommandInterpreter.CommandsList;
 
 namespace IngateTask.Service.WCF.Commands
 {

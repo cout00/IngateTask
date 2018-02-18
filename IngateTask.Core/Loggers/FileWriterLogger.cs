@@ -13,9 +13,9 @@ namespace IngateTask.Core.Loggers
 
         public FileWriterLogger(string path, ILogStringCombiner stringCombiner)
         {
-            _path = path;
+            _path = Path.Combine(path, "log.txt");
             _stringCombiner = stringCombiner;
-            _streamWriter = File.AppendText(path);
+            _streamWriter = File.AppendText(_path);
         }
 
         public void SendNonStatusMessage(string msg)

@@ -93,7 +93,7 @@ namespace IngateTask.Core.CommandInterpreter
                 {
                     command.Parameter += splitRes[i] + ' ';
                 }
-                command.Parameter.Trim(' ');
+                command.Parameter=command.Parameter.Trim(' ');
             }
             return command;
         }

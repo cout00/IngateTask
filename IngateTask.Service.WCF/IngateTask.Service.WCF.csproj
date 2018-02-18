@@ -43,8 +43,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\CommandAbortCrawl.cs" />
     <Compile Include="Commands\CommandReadInputFileToServer.cs" />
     <Compile Include="Commands\CommandRunnedInfo.cs" />
+    <Compile Include="Commands\CommandStartCrawlAtServer.cs" />
     <Compile Include="Logger\ConsoleWCFDispatcher.cs" />
     <Compile Include="Crawler.cs" />
     <Compile Include="ICrawler.cs" />

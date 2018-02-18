@@ -95,6 +95,7 @@ namespace IngateTask.PortableLibrary.Classes
                     }
                 }
             }
+            _logProvider.SendNonStatusMessage($"file have {_fieldses.Count} rows");
             return _fieldses;
         }
     }

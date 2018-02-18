@@ -12,7 +12,7 @@ namespace IngateTask.Core.Loggers
         {
             logMessanger = new LogMessanger();
             SimpleStringCombiner stringCombiner = new SimpleStringCombiner();
-            FileWriterLogger fileWriterLogger = new FileWriterLogger(Path.Combine(path, "log.txt"),
+            FileWriterLogger fileWriterLogger = new FileWriterLogger(path,
                 stringCombiner);
             ConsoleWriterLogger consoleWriterLogger = new ConsoleWriterLogger(stringCombiner);
             logMessanger.Add(fileWriterLogger);

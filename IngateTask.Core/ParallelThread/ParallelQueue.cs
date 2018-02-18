@@ -8,15 +8,29 @@ namespace IngateTask.Core.ParallelThread
 {
     public class ParallelQueue
     {
+        /// <summary>
+        /// соответствие хешь код - названию задачи и ее конселейшен токена
+        /// </summary>
         private readonly ConcurrentDictionary<int, KeyValuePair<string, CancellationTokenSource>> _cancellationTokens =
             new ConcurrentDictionary<int, KeyValuePair<string, CancellationTokenSource>>();
 
         private readonly int _maxRunningTasks;
 
+        /// <summary>
+        /// очеред которая ждет в данный момент
+        /// </summary>
+
         private readonly ConcurrentQueue<KeyValuePair<string, Func<Task>>> _processingQueue =
             new ConcurrentQueue<KeyValuePair<string, Func<Task>>>();
 
+        /// <summary>
+        /// список выполняющихся задач
+        /// </summary>
         private readonly ConcurrentDictionary<int, Task> _runningTasks = new ConcurrentDictionary<int, Task>();
+
+        /// <summary>
+        /// фабрика задач которым можно установить результат вручную. удобная вещь
+        /// </summary>
         private TaskCompletionSource<bool> _tscQueue = new TaskCompletionSource<bool>();
 
         public ParallelQueue(int maxRunningTasks)
@@ -31,7 +45,7 @@ namespace IngateTask.Core.ParallelThread
 
         public int GetQueueCount()
         {
-            return _processingQueue.Count;
+            return _processingQueue.Count - GetRunningCount();
         }
 
         public int GetRunningCount()
@@ -62,6 +76,24 @@ namespace IngateTask.Core.ParallelThread
             }
         }
 
+        public List<string> GetRunnedTasksName()
+        {
+            List<string> temp=new List<string>();
+            foreach (KeyValuePair<int, KeyValuePair<string, CancellationTokenSource>> token in _cancellationTokens)
+            {
+                temp.Add(token.Value.Key);
+            }
+            return temp;
+        }
+
+        public void CancelAll()
+        {
+            foreach (KeyValuePair<int, KeyValuePair<string, CancellationTokenSource>> token in _cancellationTokens)
+            {
+                token.Value.Value.Cancel();
+            }
+        }
+
         public async Task Process()
         {
             Task<bool> t = _tscQueue.Task;
@@ -84,8 +116,7 @@ namespace IngateTask.Core.ParallelThread
                 _runningTasks.TryAdd(t.GetHashCode(), t);
                 _cancellationTokens.TryAdd(t.GetHashCode(),
                     new KeyValuePair<string, CancellationTokenSource>(futureTask.Key, cancellationToken));
-                t.ContinueWith(t2 =>
-                {
+                t.ContinueWith(t2 => {
                     Task _temp;
                     _runningTasks.TryRemove(t2.GetHashCode(), out _temp);
                     StartTasks();

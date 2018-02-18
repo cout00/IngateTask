@@ -8,6 +8,7 @@ using IngateTask.Core.CommandInterpreter;
 using IngateTask.PortableLibrary.Interfaces;
 using IngateTask.Core.Clients;
 using IngateTask.Service.WCF.Commands;
+using IngateTask.Core.CommandInterpreter.CommandsList;
 
 namespace IngateTask.Service.WCF
 {
@@ -15,7 +16,7 @@ namespace IngateTask.Service.WCF
     {
         public ICrawlerCallBack _crawlerCallBack;
 
-        public WCFConsoleClient(string name, ILogProvider logProvider, ICrawlerCallBack crawlerCallBack) : base(name, logProvider)
+        public WCFConsoleClient(string name, ILogProvider userLogProvider, ICrawlerCallBack crawlerCallBack) : base(name, userLogProvider)
         {
             _crawlerCallBack = crawlerCallBack;
         }
@@ -23,20 +24,23 @@ namespace IngateTask.Service.WCF
         public override void InitInterpreter()
         {
             base.InitInterpreter();
-            //Interpreter.Remove(Interpreter.Find(
-            //    command =>command.GetType()==typeof(CommandStartCrawl)));
-            
+            Interpreter.Remove(Interpreter.Find(
+                command => command.GetType() == typeof(CommandStartCrawl)));
+
             Interpreter.Remove(Interpreter.Find(
                 command => command.GetType() == typeof(CommandReadInputFile)));
 
             
 
-            CommandReadInputFileToServer commandReadInputFile =new CommandReadInputFileToServer(_logProvider, this);
-                        
-            CommandRunnedInfo commandRunnedInfo=new CommandRunnedInfo(_logProvider,this);
+            CommandReadInputFileToServer commandReadInputFile =new CommandReadInputFileToServer(UserLogProvider, this);
+            CommandStartCrawlAtServer commandStartCrawlAtServer=new CommandStartCrawlAtServer(UserLogProvider,this);            
+            CommandRunnedInfo commandRunnedInfo=new CommandRunnedInfo(UserLogProvider,this);
+            CommandAbortCrawl commandAbortCrawl=new CommandAbortCrawl(UserLogProvider,this);
 
+            Interpreter.Add(commandStartCrawlAtServer);
             Interpreter.Add(commandRunnedInfo);
             Interpreter.Add(commandReadInputFile);
+            Interpreter.Add(commandAbortCrawl);
         }
     }
 }

@@ -47,7 +47,7 @@ namespace IngateTask.Core.CommandInterpreter.CommandsList
                 if (!newPath.EndsWith("\\"))
                 {
                     newPath += "\\";
-                }
+                }                
                 ClientConsoleLink.OutPutPath = Path.GetDirectoryName(Path.GetFullPath(newPath));
                 _logProvider.SendNonStatusMessage("u entered: " + ClientConsoleLink.OutPutPath);
             }

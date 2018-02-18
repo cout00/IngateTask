@@ -46,6 +46,8 @@ namespace IngateTask.Core.Crawler
         {
             if (token.IsCancellationRequested)
             {
+                _logMessanger.SendStatusMessage(LogMessages.Warning,
+                    $"Domain {_inpParams.Key.OriginalString} crawling was canseled by user");
                 return;
             }
             try
@@ -104,6 +106,8 @@ namespace IngateTask.Core.Crawler
                 {
                     _output = Path.Combine(_output, _inpParams.Key.Host);
                     Directory.CreateDirectory(_output);
+                    _logMessanger.SendStatusMessage(LogMessages.Warning,
+                        $"Domain {_inpParams.Key.OriginalString} start crawling use -help for more info");
                     DirectRecursion(_inpParams.Key, token);
                     _logMessanger.SendStatusMessage(LogMessages.Warning,
                         $"Domain {_inpParams.Key.OriginalString} Parsed!");

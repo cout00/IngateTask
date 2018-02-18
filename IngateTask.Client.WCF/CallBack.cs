@@ -23,7 +23,7 @@ namespace IngateTask.Client.WCF
                 var fileParser = new InputLocalFileParser(filePath, _logProvider);
                 var array = fileParser.GetParsedArray();
                 if (array!=null)
-                {                    
+                {                                        
                     Task.Run(() => CrawlerClient.SetInputData(array.ToArray()));
                 }
             }
