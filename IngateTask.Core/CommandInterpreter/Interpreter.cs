@@ -77,13 +77,13 @@ namespace IngateTask.Core.CommandInterpreter
             }
             Command command = null;
             command = FindCommand(splitRes.First());
-            if (splitRes.Length == 1)
+            if (command == null)
             {
-                if (command == null)
-                {
-                    _logProvider.SendNonStatusMessage($"Parse error. command '{inpstr}' unknow");
-                    return null;
-                }
+                _logProvider.SendNonStatusMessage($"Parse error. command '{inpstr}' unknow");
+                return null;
+            }
+            if (splitRes.Length == 1)
+            {                
                 if (command.GetType().GetCustomAttribute(typeof(ParametrelessAttribute)) == null)
                 {
                     _logProvider.SendNonStatusMessage($"Parse error. command '{inpstr}' have no params");
