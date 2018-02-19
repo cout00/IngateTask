@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using IngateTask.PortableLibrary.Interfaces;
-using IngateTask.Core.Interfaces;
+﻿using IngateTask.PortableLibrary.Interfaces;
 
 namespace IngateTask.Service.WCF.Logger
 {
-    public class ServiceCallBackDispatcher :ILogProvider
+    /// <summary>
+    /// рассылает сообщения клиенту
+    /// </summary>
+    public class ServiceCallBackDispatcher : ILogProvider
     {
         private readonly ICrawlerCallBack _crawlerCallBack;
         private readonly ILogStringCombiner _stringCombiner;
@@ -26,7 +23,7 @@ namespace IngateTask.Service.WCF.Logger
 
         public void SendStatusMessage(LogMessages mgsStatus, string msg)
         {
-           _crawlerCallBack.OnCallBack($"{mgsStatus}: {_stringCombiner.GetCombinedString(msg)}");
+            _crawlerCallBack.OnCallBack($"{mgsStatus}: {_stringCombiner.GetCombinedString(msg)}");
         }
     }
 }

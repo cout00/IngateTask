@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using IngateTask.Core.Clients;
 using IngateTask.Core.CommandInterpreter;
 using IngateTask.PortableLibrary.Interfaces;
 
 namespace IngateTask.Service.WCF.Commands
 {
-    public class CommandAbortCrawl :Command
+    public class CommandAbortCrawl : Command
     {
-        public CommandAbortCrawl(ILogProvider logProvider, ClientConsole clientConsoleLink) : base(logProvider, clientConsoleLink)
+        public CommandAbortCrawl(ILogProvider logProvider, ClientConsole clientConsoleLink) : base(logProvider,
+            clientConsoleLink)
         {
         }
 
@@ -26,7 +22,7 @@ namespace IngateTask.Service.WCF.Commands
             get { return "-abort"; }
         }
 
-        public async override Task<bool> CommandAction()
+        public override async Task<bool> CommandAction()
         {
             if (ClientConsoleLink._parallelQueue.GetRunnedTasksName().ContainsKey(Parameter))
             {
@@ -36,12 +32,11 @@ namespace IngateTask.Service.WCF.Commands
             }
             _logProvider.SendStatusMessage(LogMessages.Warning, $"not task with key {Parameter}");
             return false;
-
         }
 
         public override bool InvokeRequarement()
         {
-            return ClientConsoleLink._parallelQueue!=null&&ClientConsoleLink._parallelQueue.GetRunningCount() != 0;
+            return ClientConsoleLink._parallelQueue != null && ClientConsoleLink._parallelQueue.GetRunningCount() != 0;
         }
 
         public override string OnFailFunc()

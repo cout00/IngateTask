@@ -11,6 +11,9 @@ using IngateTask.PortableLibrary.UserAgents;
 
 namespace IngateTask.Core.Crawler
 {
+    /// <summary>
+    /// сам паук
+    /// </summary>
     public class Crawler
     {
         private readonly IHttpParser _httpParser;
@@ -18,8 +21,6 @@ namespace IngateTask.Core.Crawler
         private readonly ILogProvider _logMessanger;
         private readonly List<string> visitedList = new List<string>();
         private string _output;
-        public double ReadedMbytes { get; private set; } = 0;
-        public double SavedPages { get; private set; } = 0;
 
         public Crawler(KeyValuePair<Uri, IUserAgent> inpParams, ILogProvider logMessanger, IHttpParser httpParser,
             string output)
@@ -32,13 +33,16 @@ namespace IngateTask.Core.Crawler
 
         public Crawler()
         {
-
         }
+
+        public double ReadedMbytes { get; private set; }
+        public double SavedPages { get; private set; }
 
         private IEnumerable<Uri> ParsePage(string page, Uri currentUri)
         {
             foreach (Uri uri in _httpParser.GetNestedUri(page, currentUri))
             {
+                //фильтр на под домен то что мы уже были на это ссылке и то что ссылка не анкор и нередирект
                 if (!visitedList.Contains(uri.OriginalString)
                     && uri.UriHaveSameDomens(_inpParams.Key)
                     && !uri.UriIsAnchorOrRedirect())
@@ -47,16 +51,21 @@ namespace IngateTask.Core.Crawler
                 }
             }
         }
-
+        /// <summary>
+        /// нисходящая рекурсия. почему нисходящая? смотрим как работает елд он тут повсюду
+        /// </summary>
+        /// <param name="nextPage"></param>
+        /// <param name="token"></param>
         private void DirectRecursion(Uri nextPage, CancellationToken token)
         {
             try
             {
                 visitedList.Add(nextPage.OriginalString);
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(nextPage);
+                HttpWebRequest request = (HttpWebRequest) WebRequest.Create(nextPage);
                 request.UserAgent = _inpParams.Value.GetUserAgentFullName();
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                using (HttpWebResponse response = (HttpWebResponse) request.GetResponse())
                 {
+                    //список всех МИМЕ типов тут 
                     if (response.ContentType.IsSubStringOf(DefaultParams.MEMETextList.ToArray()))
                     {
                         if (response.StatusCode == HttpStatusCode.OK)
@@ -77,7 +86,7 @@ namespace IngateTask.Core.Crawler
                             {
                                 outFile.WriteAsync(data).Wait();
                                 SavedPages++;
-                                ReadedMbytes += ((data.Length * (double)sizeof(char)) / (1024 * 1024));
+                                ReadedMbytes += data.Length * (double) sizeof(char) / (1024 * 1024);
                             }
                             readStream.Close();
                             _logMessanger.SendStatusMessage(LogMessages.Event, $"I parsed {nextPage.OriginalString}");
@@ -108,9 +117,15 @@ namespace IngateTask.Core.Crawler
         }
 
 
+        /// <summary>
+        /// тут все понятно, едим токен и погнали
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public async Task CrawAsync(CancellationToken token)
         {
-            await Task.Run(() => {
+            await Task.Run(() =>
+            {
                 try
                 {
                     _output = Path.Combine(_output, _inpParams.Key.Host);

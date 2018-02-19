@@ -1,10 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using IngateTask.Core.Clients;
 using IngateTask.PortableLibrary.Interfaces;
 
 namespace IngateTask.Core.CommandInterpreter
 {
+    /// <summary>
+    /// команда патерн "команда" только адаптированный под эту задачу
+    /// </summary>
     public abstract class Command
     {
         protected readonly ILogProvider _logProvider;
@@ -18,6 +20,9 @@ namespace IngateTask.Core.CommandInterpreter
         }
 
         public abstract string CommandName { get; }
+
+        public string Parameter { get; set; }
+        public abstract string CommandDiscription { get; }
 
         /// <summary>
         ///     устанавливает свойство
@@ -39,9 +44,10 @@ namespace IngateTask.Core.CommandInterpreter
         /// </summary>
         public abstract string OnFailFunc();
 
-        public string Parameter { get; set; }
-        public abstract string CommandDiscription { get; }
-
+        /// <summary>
+        /// само действие при команде
+        /// </summary>
+        /// <returns></returns>
         public abstract Task<bool> CommandAction();
     }
 }

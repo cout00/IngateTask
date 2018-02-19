@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IngateTask.Core.Clients;
-using IngateTask.Core.ParallelThread;
 using IngateTask.Core.CommandInterpreter;
 using IngateTask.PortableLibrary.Interfaces;
 
 namespace IngateTask.Service.WCF.Commands
 {
     [Parametreless]
-    class CommandRunnedInfo :Command
+    internal class CommandRunnedInfo : Command
     {
-        public CommandRunnedInfo(ILogProvider logProvider, ClientConsole clientConsoleLink) : base(logProvider, clientConsoleLink)
+        public CommandRunnedInfo(ILogProvider logProvider, ClientConsole clientConsoleLink) : base(logProvider,
+            clientConsoleLink)
         {
         }
 
@@ -29,15 +28,18 @@ namespace IngateTask.Service.WCF.Commands
 
         public override async Task<bool> CommandAction()
         {
-                       
-            StringBuilder infoBuilder=new StringBuilder();
+            StringBuilder infoBuilder = new StringBuilder();
             infoBuilder.AppendLine(Environment.NewLine);
             infoBuilder.AppendLine("________INFO_______");
-            infoBuilder.AppendLine($"runned {ClientConsoleLink._parallelQueue.GetRunningCount().ToString()} threads");
+            infoBuilder.AppendLine($"runned {ClientConsoleLink._parallelQueue.GetRunningCount()} threads");
             infoBuilder.AppendLine("task names:");
-            infoBuilder.AppendLine(string.Join(Environment.NewLine, ClientConsoleLink._parallelQueue.GetRunnedTasksName().
-                    Select(pair => $"Key: {pair.Key} Readed mbytes: {Math.Round(pair.Value.ReadedMbytes)} Parsed: {pair.Value.SavedPages}").ToList()
-                ));
+            infoBuilder.AppendLine(string.Join(Environment.NewLine,
+                ClientConsoleLink._parallelQueue.GetRunnedTasksName()
+                    .Select(
+                        pair =>
+                            $"Key: {pair.Key} Readed mbytes: {Math.Round(pair.Value.ReadedMbytes)} Parsed: {pair.Value.SavedPages}")
+                    .ToList()
+            ));
             infoBuilder.AppendLine("___________________");
             _logProvider.SendNonStatusMessage(infoBuilder.ToString());
             return true;

@@ -3,6 +3,9 @@ using IngateTask.PortableLibrary.Interfaces;
 
 namespace IngateTask.PortableLibrary.Classes
 {
+    /// <summary>
+    /// пишет в консольку. нужен и клиенту и сервису
+    /// </summary>
     public class ConsoleWriterLogger : ILogProvider
     {
         private readonly ILogStringCombiner _stringCombiner;

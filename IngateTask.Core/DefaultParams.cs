@@ -4,8 +4,14 @@ namespace IngateTask.Core
 {
     public static class DefaultParams
     {
+        /// <summary>
+        /// задержка подефолту
+        /// </summary>
         public static int DefaulDelay = 100;
 
+        /// <summary>
+        /// список всех тестовых миме типов
+        /// </summary>
         public static List<string> MEMETextList = new List<string>
         {
             "text/html",
@@ -16,7 +22,7 @@ namespace IngateTask.Core
         };
 
         /// <summary>
-        ///     все типы которые самые распространенные их можно отсеч заранее
+        ///  все типы которые самые распространенные их можно отсеч заранее
         /// </summary>
         public static List<string> MemeNonTextList = new List<string>
         {

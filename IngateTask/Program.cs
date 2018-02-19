@@ -12,19 +12,16 @@ namespace IngateTask.Local
 
         private static void Main(string[] args)
         {
-            Task.Factory.StartNew(() =>
+            ServerStringCombiner stringCombiner = new ServerStringCombiner();
+            ConsoleWriterLogger consoleWriterLogger = new ConsoleWriterLogger(stringCombiner);
+            LogMessanger logMessanger = new LogMessanger();
+            logMessanger.Add(consoleWriterLogger);
+            ClientConsole clientConsole = new ClientConsole("me", consoleWriterLogger);
+            clientConsole.InitInterpreter();
+            while (!cancelConsole)
             {
-                var stringCombiner = new ServerStringCombiner();
-                var consoleWriterLogger = new ConsoleWriterLogger(stringCombiner);
-                var logMessanger = new LogMessanger();
-                logMessanger.Add(consoleWriterLogger);
-                var clientConsole = new ClientConsole("me", consoleWriterLogger);
-                clientConsole.InitInterpreter();
-                while (!cancelConsole)
-                    clientConsole.Interpreter.Interpret(Console.ReadLine());
-            }).Wait();
-            
-            
+                clientConsole.Interpreter.Interpret(Console.ReadLine());
+            }
         }
     }
 }

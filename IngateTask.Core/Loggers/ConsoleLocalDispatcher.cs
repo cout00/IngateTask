@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using IngateTask.PortableLibrary.Classes;
 using IngateTask.PortableLibrary.Interfaces;
-using IngateTask.PortableLibrary.Classes;
 
 namespace IngateTask.Core.Loggers
 {
+    /// <summary>
+    /// груповой рассыльщик для локального интерфейса
+    /// </summary>
     public class ConsoleLocalDispatcher : ILogProvider
     {
         private readonly LogMessanger logMessanger;

@@ -1,22 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
-using System.Threading.Tasks;
-using IngateTask.Core.CommandInterpreter;
-using IngateTask.PortableLibrary.Interfaces;
-using IngateTask.Core.Clients;
-using IngateTask.Service.WCF.Commands;
+﻿using IngateTask.Core.Clients;
 using IngateTask.Core.CommandInterpreter.CommandsList;
+using IngateTask.PortableLibrary.Interfaces;
+using IngateTask.Service.WCF.Commands;
 
 namespace IngateTask.Service.WCF
 {
-    public class WCFConsoleClient :ClientConsole
+    /// <summary>
+    /// объект клиента на стороне сервиса, уже со своей реализацией
+    /// </summary>
+    public class WCFConsoleClient : ClientConsole
     {
         public ICrawlerCallBack _crawlerCallBack;
 
-        public WCFConsoleClient(string name, ILogProvider userLogProvider, ICrawlerCallBack crawlerCallBack) : base(name, userLogProvider)
+        public WCFConsoleClient(string name, ILogProvider userLogProvider,
+            ICrawlerCallBack crawlerCallBack) : base(name, userLogProvider)
         {
             _crawlerCallBack = crawlerCallBack;
         }
@@ -30,12 +27,11 @@ namespace IngateTask.Service.WCF
             Interpreter.Remove(Interpreter.Find(
                 command => command.GetType() == typeof(CommandReadInputFile)));
 
-            
 
-            CommandReadInputFileToServer commandReadInputFile =new CommandReadInputFileToServer(UserLogProvider, this);
-            CommandStartCrawlAtServer commandStartCrawlAtServer=new CommandStartCrawlAtServer(UserLogProvider,this);            
-            CommandRunnedInfo commandRunnedInfo=new CommandRunnedInfo(UserLogProvider,this);
-            CommandAbortCrawl commandAbortCrawl=new CommandAbortCrawl(UserLogProvider,this);
+            CommandReadInputFileToServer commandReadInputFile = new CommandReadInputFileToServer(UserLogProvider, this);
+            CommandStartCrawlAtServer commandStartCrawlAtServer = new CommandStartCrawlAtServer(UserLogProvider, this);
+            CommandRunnedInfo commandRunnedInfo = new CommandRunnedInfo(UserLogProvider, this);
+            CommandAbortCrawl commandAbortCrawl = new CommandAbortCrawl(UserLogProvider, this);
 
             Interpreter.Add(commandStartCrawlAtServer);
             Interpreter.Add(commandRunnedInfo);

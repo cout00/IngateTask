@@ -1,23 +1,26 @@
-﻿using System;
-using System.IO;
-using IngateTask.Core.CommandInterpreter;
+﻿using IngateTask.Core.CommandInterpreter;
+using IngateTask.Core.CommandInterpreter.CommandsList;
 using IngateTask.Core.ParallelThread;
 using IngateTask.PortableLibrary.Interfaces;
-using IngateTask.Core.CommandInterpreter.CommandsList;
-using IngateTask.Core.Loggers;
 
 namespace IngateTask.Core.Clients
 {
+    /// <summary>
+    /// консольный клиент к нему добавился интерпретатор и ссылка на очередь задач
+    /// </summary>
     public class ClientConsole : User
     {
+        public ParallelQueue<Crawler.Crawler> _parallelQueue;
+
         public ClientConsole(string name, ILogProvider userLogProvider) : base(name, userLogProvider)
         {
             Interpreter = new Interpreter(userLogProvider);
         }
 
         public Interpreter Interpreter { get; set; }
-        public ParallelQueue<Crawler.Crawler> _parallelQueue;
-
+        /// <summary>
+        /// инициализирует интерпретатор командами которые доступны пользователю
+        /// </summary>
         public virtual void InitInterpreter()
         {
             CommandReadInputFile commandReadInputFile = new CommandReadInputFile(UserLogProvider, this);
@@ -27,7 +30,7 @@ namespace IngateTask.Core.Clients
             CommandHelp commandHelp = new CommandHelp(UserLogProvider, this);
 
             CommandOutPutPath commandOutPutPath = new CommandOutPutPath(UserLogProvider, this);
-            
+
             CommandStartCrawl commandStartCrawl = new CommandStartCrawl(UserLogProvider, this);
 
             Interpreter.Add(commandStartCrawl);

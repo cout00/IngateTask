@@ -1,59 +1,93 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using IngateTask.Core;
-using IngateTask.Core.Crawler;
-using IngateTask.Core.Interfaces;
-using IngateTask.Core.Loggers;
-using NUnit.Framework;
 using IngateTask.Core.Parsers;
-//using IngateTask.Core.UserAgents;
+using NUnit.Framework;
 using Rhino.Mocks;
+using System.IO;
+using IngateTask.Core.Interfaces;
+using System.Collections.Generic;
+using IngateTask.PortableLibrary.Classes;
+using IngateTask.PortableLibrary.Interfaces;
+using IngateTask.PortableLibrary.UserAgents;
+
+//using IngateTask.Core.UserAgents;
 
 namespace IngateTask.Tests
 {
     [TestFixture]
     public class ParserTests
     {
-        private RobotsParser robotsParser;
+        private string resursePath;
+        private IRequest robotsParserStub;
+        ILogProvider logStub;
+
         [SetUp]
         public void Init()
         {
-            robotsParser = MockRepository.GenerateMock<RobotsParser>();
+            robotsParserStub = MockRepository.GenerateStub<IRequest>();
+            resursePath = Path.Combine(Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName, "Resources");
+            logStub = MockRepository.GenerateStub<ILogProvider>();
+        }
+
+
+        List<string> Load(string uri)
+        {
+            var list = new List<string>();
+            using (var stream = new StreamReader(File.OpenRead(uri)))
+            {
+                foreach (var str in stream.ReadToEnd().Split('\r', '\n'))
+                    list.Add(str.ToLower());
+            }
+            return list;
         }
 
         [Test]
-        public void RobotsFileTest()
+        public void InputFileIsValidTest()
         {
-            //RobotsFileStub fileStub=new RobotsFileStub();
-            //InputFields inputFields = new InputFields() {Domain = Path.Combine(@"D:\", "mkyong.txt"), UserAgent = "yandexbot"};
-            ////RobotsParser robotsParser=new RobotsParser(inputFields,new LogMessanger(), fileStub);
-            ////robotsParser.ParseFile();
-            ////var tesRes = robotsParser.GetResult();
-            //YandexBot yandexBot=new YandexBot();
-            //yandexBot.GetCrawlDelay = 2;
-            ////robotsParser.Expect(parser => parser.GetResult())
-            ////    .Return(new KeyValuePair<string, IUserAgent>("\"http://www.mkyong.com\"", yandexBot));
-            //KeyValuePair<string, IUserAgent> test=new KeyValuePair<string, IUserAgent>("https://msdn.microsoft.com/en-us/library/windows/desktop/ms633545(v=vs.85).aspx", yandexBot);
-
-            //Uri test1 = new Uri("/sandbox/",UriKind.Relative);
-            //Uri test2 = "https://habrahabr.ru/company/tm/".ToUri();
-
-
-            //TextReader textReader = File.OpenText(Path.Combine(@"D:\", "1.txt"));
-            //GrammaHttpParser parser=new GrammaHttpParser();
-            //parser.GetNestedUri(textReader.ReadToEnd(), "https://habrahabr.ru".ToUri());
-
-            ////Uri uri=new Uri();
-            ////Crawler crawler=new Crawler(test,new LogMessanger());
-            ////Extensions.IsSubDomain("");
-            ////Uri uri=new Uri("http://cdndl.zaycev.net/960403/6692165/post_malone_feat._21_savage_-_rockstar_%28zaycev.net%29.mp3");
-
-            ////crawler.CrawAsync();
+            var path = Path.Combine(resursePath, "input right.txt");
+            InputLocalFileParser fileParser=new InputLocalFileParser(path,logStub);
+            var res = fileParser.GetParsedArray();
+            Assert.That(res.Count==6);
+            Assert.That(fileParser.FileIsValid);
+            CollectionAssert.Contains(res,new InputFields() {Domain = "http://theory.phphtml.net/", UserAgent = "googlebot"});
         }
+
+        [Test]
+        public void InputFileNotValidTest()
+        {
+            var path = Path.Combine(resursePath, "input wrong.txt");
+            InputLocalFileParser fileParser = new InputLocalFileParser(path, logStub);
+            var res = fileParser.GetParsedArray();
+            Assert.That(res.Count == 5);
+            Assert.That(!fileParser.FileIsValid);
+            CollectionAssert.Contains(res, new InputFields() { Domain = "http://2coders.ru/", UserAgent = 300 });
+        }
+
+        [Test]
+        public void RobotsFileTestYandexBot()
+        {
+            InputFields input = new InputFields() {UserAgent = "yandexbot", Domain = "domain"};
+            var path = Path.Combine(resursePath, "habrahabr robots file.txt");
+            robotsParserStub.Expect(request => request.GetFileFromDomain("domain")).Return(Load(path));
+            RobotsParser robotsParser = new RobotsParser(input, logStub, robotsParserStub);
+            robotsParser.ParseFile();
+            var res= robotsParser.GetResult();
+            Assert.That(res.Value.GetType()==typeof(YandexBot));
+            Assert.That(res.Value.GetCrawlDelay==10000);
+        }
+        [Test]
+        public void RobotsFileTestCustom()
+        {
+            InputFields input = new InputFields() { UserAgent = 700, Domain = "domain" };
+            var path = Path.Combine(resursePath, "2coders robots file.txt");
+            robotsParserStub.Expect(request => request.GetFileFromDomain("domain")).Return(Load(path));
+            RobotsParser robotsParser = new RobotsParser(input, logStub, robotsParserStub);
+            robotsParser.ParseFile();
+            var res = robotsParser.GetResult();
+            Assert.That(res.Value.GetType() == typeof(CustomAgent));
+            Assert.That(res.Value.GetCrawlDelay == 700);
+        }
+
 
         [Test]
         public void UriTest()
@@ -63,57 +97,15 @@ namespace IngateTask.Tests
             Uri uri3 = @"https://habrahabr.ru".ToUri();
             string relPart1 = "/users/";
             string relPart2 = "./users/";
-            string relPart3 = "../users/";
-            string relPart4 = "./users";
-            string relPart5 = "/users";
-            Assert.That(uri1.GetBaseAdress(),Is.EqualTo(uri2.OriginalString));
+            Assert.That(uri1.GetBaseAdress(), Is.EqualTo(uri2.OriginalString));
             Assert.That(uri2.GetBaseAdress(), Is.EqualTo(uri2.OriginalString));
             Assert.That(uri3.GetBaseAdress(), Is.EqualTo(uri2.OriginalString));
 
-            Assert.That(uri1.CombinePath(relPart1).OriginalString, Is.EqualTo(@"https://habrahabr.ru/users/"));
-            Assert.That(uri2.CombinePath(relPart2).OriginalString, Is.EqualTo(@"https://habrahabr.ru/users/"));
-            Assert.That(uri3.CombinePath(relPart2).OriginalString, Is.EqualTo(@"https://habrahabr.ru/users/"));
-            Assert.That(uri1.CombinePath(relPart2).OriginalString, Is.EqualTo(@"https://habrahabr.ru/company/tm/users/"));
+            Assert.That(uri1.CombinePath(relPart1).OriginalString, Is.EqualTo(@"https://habrahabr.ru/users"));
+            Assert.That(uri2.CombinePath(relPart2).OriginalString, Is.EqualTo(@"https://habrahabr.ru/users"));
+            Assert.That(uri3.CombinePath(relPart2).OriginalString, Is.EqualTo(@"https://habrahabr.ru/users"));
+            Assert.That(uri1.CombinePath(relPart2).OriginalString,
+                Is.EqualTo(@"https://habrahabr.ru/company/tm/users"));
         }
-
-        //static void test1()
-        //{
-        //    for (int i = 0; i < 100; i++)
-        //    {
-        //        if (i == 40)
-        //        {
-        //            _logMessanger.PostStatusMessage(LogMessages.Error, "Error tr1");
-        //        }
-        //        _logMessanger.PostMessage("i am thread 1");
-        //        Task.Delay(40);
-        //    }
-        //}
-
-        //static void test2()
-        //{
-        //    for (int i = 0; i < 100; i++)
-        //    {
-        //        _logMessanger.PostMessage("i am thread 2");
-        //        Task.Delay(40);
-        //    }
-        //}
-
-        //static void test3()
-        //{
-        //    for (int i = 0; i < 100; i++)
-        //    {
-        //        if (i == 40)
-        //        {
-        //            _logMessanger.PostStatusMessage(LogMessages.Error, "Error tr3");
-        //        }
-        //        else
-        //        {
-        //            _logMessanger.PostStatusMessage(LogMessages.Warning, "i am thread 2");
-        //        }
-        //        Task.Delay(40);
-        //    }
-        //}
-
-
     }
 }

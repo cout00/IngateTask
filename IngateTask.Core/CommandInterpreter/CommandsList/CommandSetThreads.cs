@@ -5,7 +5,7 @@ using IngateTask.PortableLibrary.Interfaces;
 
 namespace IngateTask.Core.CommandInterpreter.CommandsList
 {
-    public class CommandSetThreads :Command
+    public class CommandSetThreads : Command
     {
         public CommandSetThreads(ILogProvider logProvider, ClientConsole clientConsoleLink) : base(logProvider,
             clientConsoleLink)
@@ -22,7 +22,7 @@ namespace IngateTask.Core.CommandInterpreter.CommandsList
             get { return "-set_threads"; }
         }
 
-        public async override Task<bool> CommandAction()
+        public override async Task<bool> CommandAction()
         {
             ClientConsoleLink.ThreadNumber = int.Parse(Parameter);
             return true;
@@ -42,7 +42,7 @@ namespace IngateTask.Core.CommandInterpreter.CommandsList
         {
             try
             {
-                ClientConsoleLink.ThreadNumber = int.Parse((string)obj);
+                ClientConsoleLink.ThreadNumber = int.Parse((string) obj);
             }
             catch (Exception e)
             {

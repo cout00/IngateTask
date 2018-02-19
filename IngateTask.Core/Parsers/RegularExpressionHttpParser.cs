@@ -6,6 +6,11 @@ using IngateTask.Core.Interfaces;
 
 namespace IngateTask.Core.Parsers
 {
+    /// <summary>
+    /// парсит страницу регуляркой быстрее никак
+    /// ну можно взять профессиональные парсеры с грамматикой
+    /// но мне нельзя(((
+    /// </summary>
     public class RegularExpressionHttpParser : IHttpParser
     {
         public IEnumerable<Uri> GetNestedUri(string page, Uri baseUri)

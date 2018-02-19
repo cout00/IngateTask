@@ -1,0 +1,6 @@
+http://www.speedtest.net yandexbot
+https://stackoverflow.com yandexbot
+http://theory.phphtml.net  googlebot
+ http://www.mkyong.com yandexbot
+http://2coders.ru 300
+https://habrahabr.ru googlebot

@@ -5,10 +5,14 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using IngateTask.PortableLibrary.Interfaces;
 
+// для тестов
 [assembly: InternalsVisibleTo("IngateTask.Tests")]
 
 namespace IngateTask.Core.CommandInterpreter
 {
+    /// <summary>
+    /// интепретатор команд
+    /// </summary>
     public class Interpreter : List<Command>
     {
         private readonly ILogProvider _logProvider;
@@ -32,14 +36,14 @@ namespace IngateTask.Core.CommandInterpreter
             if (command.InvokeRequarement())
             {
                 if (await command.CommandAction())
-                {                   
+                {
                     _logProvider.SendNonStatusMessage("OK");
                     return true;
                 }
                 return command.ResumeRequarement();
             }
-            var failMsg = command.OnFailFunc();
-            if (failMsg.Length!=0)
+            string failMsg = command.OnFailFunc();
+            if (failMsg.Length != 0)
             {
                 _logProvider.SendNonStatusMessage(failMsg);
             }
@@ -63,7 +67,7 @@ namespace IngateTask.Core.CommandInterpreter
             inpstr = inpstr.Trim(' ').ToLower();
             if (!inpstr.StartsWith("-"))
             {
-                _logProvider.SendNonStatusMessage($"Parse error. command {inpstr} unknow");
+                _logProvider.SendNonStatusMessage($"Parse error. command '{inpstr}' unknow");
                 return null;
             }
             string[] splitRes = inpstr.Split(' ');
@@ -77,12 +81,12 @@ namespace IngateTask.Core.CommandInterpreter
             {
                 if (command == null)
                 {
-                    _logProvider.SendNonStatusMessage($"Parse error. command {inpstr} unknow");
+                    _logProvider.SendNonStatusMessage($"Parse error. command '{inpstr}' unknow");
                     return null;
                 }
                 if (command.GetType().GetCustomAttribute(typeof(ParametrelessAttribute)) == null)
                 {
-                    _logProvider.SendNonStatusMessage($"Parse error. command {inpstr} have no params");
+                    _logProvider.SendNonStatusMessage($"Parse error. command '{inpstr}' have no params");
                     return null;
                 }
             }
@@ -93,7 +97,7 @@ namespace IngateTask.Core.CommandInterpreter
                 {
                     command.Parameter += splitRes[i] + ' ';
                 }
-                command.Parameter=command.Parameter.Trim(' ');
+                command.Parameter = command.Parameter.Trim(' ');
             }
             return command;
         }

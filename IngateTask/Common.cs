@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IngateTask.Local
 {
@@ -17,8 +13,8 @@ namespace IngateTask.Local
             Console.WriteLine("input file looks like:");
             Console.WriteLine("<line>::=<domain><user_agent>|<crawl-delay>");
             Console.WriteLine("example:");
-            Console.WriteLine("https://stackoverflow.com yandex\r\nhttp://theory.phphtml.net google\r\nhttp://www.mkyong.com yandex\r\nhttp://2coders.ru 300\r\nhttps://habrahabr.ru google");
-
+            Console.WriteLine(
+                "https://stackoverflow.com yandex\r\nhttp://theory.phphtml.net google\r\nhttp://www.mkyong.com yandex\r\nhttp://2coders.ru 300\r\nhttps://habrahabr.ru google");
         }
     }
 }

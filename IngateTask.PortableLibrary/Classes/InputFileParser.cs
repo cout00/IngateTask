@@ -2,28 +2,30 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using IngateTask.PortableLibrary.Interfaces;
 using IngateTask.PortableLibrary.UserAgents;
-using System.Runtime.Serialization;
 
 namespace IngateTask.PortableLibrary.Classes
 {
     /// <summary>
-    ///     тут можно спорить вечно но по рихтеру они не боксятся, сам не проверял
+    ///     структура с сериализацией в хмл
     /// </summary>
     [DataContract]
     public struct InputFields
     {
         [DataMember]
         public string Domain { get; set; }
+
         /// <summary>
         ///     памяти и так много
         /// </summary>
         [DataMember]
         public dynamic UserAgent { get; set; }
     }
-
-
+    /// <summary>
+    /// парсит входной файл
+    /// </summary>
     public class InputLocalFileParser
     {
         private readonly List<InputFields> _fieldses = new List<InputFields>();
@@ -56,7 +58,7 @@ namespace IngateTask.PortableLibrary.Classes
                     $"Sorry, path {_path} is wrong try againe {e.Message}");
                 return null;
             }
-            if (stringArray.Length==0)
+            if (stringArray.Length == 0)
             {
                 _logProvider.SendStatusMessage(LogMessages.Error,
                     $"Sorry, file at {_path} is empty try againe");
@@ -65,7 +67,7 @@ namespace IngateTask.PortableLibrary.Classes
             for (int i = 0; i < stringArray.Length; i++)
             {
                 string[] subString = stringArray[i].Trim().Split(' ');
-                if (subString.Length > 2)
+                if (subString.Length > 2|| subString.Length == 1)
                 {
                     _logProvider.SendStatusMessage(LogMessages.Error,
                         $"Wrong Parsing at {i + 1} line. Line will be skipped");

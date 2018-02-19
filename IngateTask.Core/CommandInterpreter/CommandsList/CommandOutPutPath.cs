@@ -6,7 +6,7 @@ using IngateTask.PortableLibrary.Interfaces;
 
 namespace IngateTask.Core.CommandInterpreter.CommandsList
 {
-    public class CommandOutPutPath :Command
+    public class CommandOutPutPath : Command
     {
         public CommandOutPutPath(ILogProvider logProvider, ClientConsole clientConsoleLink) : base(logProvider,
             clientConsoleLink)
@@ -23,7 +23,7 @@ namespace IngateTask.Core.CommandInterpreter.CommandsList
             get { return "-out_dir"; }
         }
 
-        public async override Task<bool> CommandAction()
+        public override async Task<bool> CommandAction()
         {
             ClientConsoleLink.OutPutPath = Parameter;
             return true;
@@ -43,11 +43,11 @@ namespace IngateTask.Core.CommandInterpreter.CommandsList
         {
             try
             {
-                string newPath = (string)obj;
+                string newPath = (string) obj;
                 if (!newPath.EndsWith("\\"))
                 {
                     newPath += "\\";
-                }                
+                }
                 ClientConsoleLink.OutPutPath = Path.GetDirectoryName(Path.GetFullPath(newPath));
                 _logProvider.SendNonStatusMessage("u entered: " + ClientConsoleLink.OutPutPath);
             }

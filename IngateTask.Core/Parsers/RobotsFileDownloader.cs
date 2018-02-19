@@ -7,6 +7,9 @@ using IngateTask.Core.Interfaces;
 
 namespace IngateTask.Core.Parsers
 {
+    /// <summary>
+    /// грузит роботс.тхт
+    /// </summary>
     public class RobotsFileDownloader : IRequest
     {
         public List<string> GetFileFromDomain(string uri)

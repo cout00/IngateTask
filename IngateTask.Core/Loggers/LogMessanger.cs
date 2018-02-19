@@ -3,6 +3,9 @@ using IngateTask.PortableLibrary.Interfaces;
 
 namespace IngateTask.Core.Loggers
 {
+    /// <summary>
+    /// простой рассыльщик
+    /// </summary>
     public class LogMessanger : List<ILogProvider>
     {
         public void PostMessage(string msg)

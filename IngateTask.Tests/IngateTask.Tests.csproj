@@ -40,12 +40,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ParserTests.cs" />
@@ -59,9 +53,19 @@
       <Project>{b668abea-2cd1-47ea-a67f-01b56191df43}</Project>
       <Name>IngateTask.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\IngateTask.PortableLibrary\IngateTask.PortableLibrary.csproj">
+      <Project>{455793A6-64A5-4958-83FB-DC309BBF5C7D}</Project>
+      <Name>IngateTask.PortableLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\2coders robots file.txt" />
+    <Content Include="Resources\habrahabr robots file.txt" />
+    <Content Include="Resources\input right.txt" />
+    <Content Include="Resources\input wrong.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -8,6 +8,9 @@ using IngateTask.PortableLibrary.UserAgents;
 
 namespace IngateTask.Core.Parsers
 {
+    /// <summary>
+    /// парсит роботс тхт файл
+    /// </summary>
     public class RobotsParser
     {
         private const string USER_AGENT_STR = "user-agent";

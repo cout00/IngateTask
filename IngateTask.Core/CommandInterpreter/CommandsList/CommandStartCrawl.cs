@@ -7,21 +7,22 @@ using IngateTask.Core.Clients;
 using IngateTask.Core.Loggers;
 using IngateTask.Core.ParallelThread;
 using IngateTask.Core.Parsers;
+using IngateTask.PortableLibrary.Classes;
 using IngateTask.PortableLibrary.Interfaces;
+using IngateTask.PortableLibrary.UserAgents;
 
 namespace IngateTask.Core.CommandInterpreter.CommandsList
 {
     [Parametreless]
-    public class CommandStartCrawl :Command
+    public class CommandStartCrawl : Command
     {
+        protected ILogProvider _crawlLogProvider;
 
         public CommandStartCrawl(ILogProvider logProvider, ClientConsole clientConsoleLink) : base(logProvider,
             clientConsoleLink)
         {
-
         }
 
-        protected ILogProvider _crawlLogProvider; 
         public override string CommandDiscription
         {
             get { return "start crawling by inited params"; }
@@ -32,17 +33,17 @@ namespace IngateTask.Core.CommandInterpreter.CommandsList
             get { return "-start_crawl"; }
         }
 
-        public async override Task<bool> CommandAction()
-        {            
+        public override async Task<bool> CommandAction()
+        {
             RobotsFileDownloader robotsFileDownloader = new RobotsFileDownloader();
             ParallelQueue<RobotsParser> parallelQueue = new ParallelQueue<RobotsParser>(ClientConsoleLink.ThreadNumber);
             ConcurrentBag<RobotsParser> concurrentBag = new ConcurrentBag<RobotsParser>();
 
-            foreach (var domains in ClientConsoleLink.InputFieldses)
+            foreach (InputFields domains in ClientConsoleLink.InputFieldses)
             {
                 RobotsParser robotsParser = new RobotsParser(domains, _crawlLogProvider, robotsFileDownloader);
                 concurrentBag.Add(robotsParser);
-                ThreadContext<RobotsParser> threadContext=new ThreadContext<RobotsParser>();
+                ThreadContext<RobotsParser> threadContext = new ThreadContext<RobotsParser>();
                 threadContext.ThreadKey = "me";
                 threadContext.MethodPointer = () => robotsParser.ParseFileAsync();
                 threadContext.AssisatedObject = robotsParser;
@@ -51,15 +52,16 @@ namespace IngateTask.Core.CommandInterpreter.CommandsList
             parallelQueue.Process().Wait();
             _crawlLogProvider.SendNonStatusMessage("_____________________________________");
 
-            ParallelQueue<Crawler.Crawler> parallelQueueCrawler = new ParallelQueue<Crawler.Crawler>(ClientConsoleLink.ThreadNumber);
+            ParallelQueue<Crawler.Crawler> parallelQueueCrawler =
+                new ParallelQueue<Crawler.Crawler>(ClientConsoleLink.ThreadNumber);
             ClientConsoleLink._parallelQueue = parallelQueueCrawler;
             RegularExpressionHttpParser parser = new RegularExpressionHttpParser();
             foreach (RobotsParser robotsParser in concurrentBag)
             {
-                var result = robotsParser.GetResult();
+                KeyValuePair<Uri, IUserAgent> result = robotsParser.GetResult();
                 Crawler.Crawler crawler = new Crawler.Crawler(result, _crawlLogProvider, parser,
                     ClientConsoleLink.OutPutPath);
-                ThreadContext<Crawler.Crawler> context=new ThreadContext<Crawler.Crawler>();
+                ThreadContext<Crawler.Crawler> context = new ThreadContext<Crawler.Crawler>();
                 context.AssisatedObject = crawler;
                 context.ThreadKey = result.Key.Host;
                 context.MethodPointer = () => crawler.CrawAsync(parallelQueueCrawler.GetTokenByName(result.Key.Host));
@@ -100,12 +102,13 @@ namespace IngateTask.Core.CommandInterpreter.CommandsList
 
         public override bool PropertySetter(object obj)
         {
-            if (ClientConsoleLink.OutPutPath.Length!=0)
+            if (ClientConsoleLink.OutPutPath.Length != 0)
             {
                 try
                 {
                     Directory.CreateDirectory(ClientConsoleLink.OutPutPath);
-                    ConsoleLocalDispatcher consoleLocalDispatcher=new ConsoleLocalDispatcher(ClientConsoleLink.OutPutPath);
+                    ConsoleLocalDispatcher consoleLocalDispatcher =
+                        new ConsoleLocalDispatcher(ClientConsoleLink.OutPutPath);
                     _crawlLogProvider = consoleLocalDispatcher;
                 }
                 catch (Exception e)
@@ -113,7 +116,7 @@ namespace IngateTask.Core.CommandInterpreter.CommandsList
                     _logProvider.SendStatusMessage(LogMessages.Exceptions, e.Message);
                     return false;
                 }
-                return true;    
+                return true;
             }
             return true;
         }

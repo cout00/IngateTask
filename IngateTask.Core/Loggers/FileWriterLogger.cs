@@ -1,9 +1,11 @@
 ﻿using System.IO;
-using IngateTask.Core.Interfaces;
 using IngateTask.PortableLibrary.Interfaces;
 
 namespace IngateTask.Core.Loggers
 {
+    /// <summary>
+    /// пишет логи в файл
+    /// </summary>
     public class FileWriterLogger : ILogProvider
     {
         private readonly string _path;

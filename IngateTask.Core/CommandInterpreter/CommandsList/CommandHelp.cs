@@ -6,7 +6,7 @@ using IngateTask.PortableLibrary.Interfaces;
 namespace IngateTask.Core.CommandInterpreter.CommandsList
 {
     [Parametreless]
-    public class CommandHelp :Command
+    public class CommandHelp : Command
     {
         public CommandHelp(ILogProvider logProvider, ClientConsole clientConsoleLink) : base(logProvider,
             clientConsoleLink)
@@ -23,7 +23,7 @@ namespace IngateTask.Core.CommandInterpreter.CommandsList
             get { return "-help"; }
         }
 
-        public async override Task<bool> CommandAction()
+        public override async Task<bool> CommandAction()
         {
             string outString = Environment.NewLine;
             foreach (Command command in ClientConsoleLink.Interpreter)

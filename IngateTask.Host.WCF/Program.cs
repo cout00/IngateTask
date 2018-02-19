@@ -1,20 +1,16 @@
-﻿using IngateTask.Service.WCF;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
+using IngateTask.Service.WCF;
 
 namespace IngateTask.Host.WCF
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             try
             {
-                var host = new ServiceHost(typeof(Crawler));
+                ServiceHost host = new ServiceHost(typeof(Crawler));
 
                 host.Open();
 

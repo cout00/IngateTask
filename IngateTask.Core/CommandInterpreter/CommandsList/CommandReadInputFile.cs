@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using IngateTask.Core.Clients;
 using IngateTask.PortableLibrary.Classes;
@@ -5,7 +6,7 @@ using IngateTask.PortableLibrary.Interfaces;
 
 namespace IngateTask.Core.CommandInterpreter.CommandsList
 {
-    public class CommandReadInputFile :Command
+    public class CommandReadInputFile : Command
     {
         public CommandReadInputFile(ILogProvider logProvider, ClientConsole clientConsoleLink) : base(logProvider,
             clientConsoleLink)
@@ -22,10 +23,10 @@ namespace IngateTask.Core.CommandInterpreter.CommandsList
             get { return "-load_file"; }
         }
 
-        public async override Task<bool> CommandAction()
+        public override async Task<bool> CommandAction()
         {
-            var fileParser = new InputLocalFileParser(Parameter, _logProvider);
-            var array = fileParser.GetParsedArray();
+            InputLocalFileParser fileParser = new InputLocalFileParser(Parameter, _logProvider);
+            List<InputFields> array = fileParser.GetParsedArray();
             ClientConsoleLink.InputFieldses = array;
             if (array == null)
             {
@@ -50,7 +51,7 @@ namespace IngateTask.Core.CommandInterpreter.CommandsList
 
         public override bool PropertySetter(object obj)
         {
-            ClientConsoleLink.InputFilePath = (string)obj;
+            ClientConsoleLink.InputFilePath = (string) obj;
             return true;
         }
 
